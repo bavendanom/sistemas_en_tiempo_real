@@ -1,1 +1,3 @@
-# sistemas_en_tiempo_real
+# Sistemas en tiempo real
+
+# Brayan Orlando Avendaño Mesa
