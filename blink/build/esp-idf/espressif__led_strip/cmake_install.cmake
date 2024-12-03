@@ -1,4 +1,4 @@
-# Install script for directory: /home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/managed_components/espressif__led_strip
+# Install script for directory: /home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/managed_components/espressif__led_strip
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

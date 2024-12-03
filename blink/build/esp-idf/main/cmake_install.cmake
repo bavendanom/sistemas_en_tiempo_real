@@ -1,4 +1,4 @@
-# Install script for directory: /home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/main
+# Install script for directory: /home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/main
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

@@ -1,4 +1,4 @@
-/* * Data converted from /home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/esp-idf/mbedtls/x509_crt_bundle
+/* * Data converted from /home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/esp-idf/mbedtls/x509_crt_bundle
  */
 .data
 #if !defined (__APPLE__) && !defined (__linux__)

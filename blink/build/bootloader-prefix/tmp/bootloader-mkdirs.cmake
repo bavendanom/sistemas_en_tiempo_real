@@ -5,18 +5,18 @@ cmake_minimum_required(VERSION 3.5)
 
 file(MAKE_DIRECTORY
   "/home/bavendanom/esp/v5.3.1/esp-idf/components/bootloader/subproject"
-  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader"
-  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix"
-  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix/tmp"
-  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix/src/bootloader-stamp"
-  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix/src"
-  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix/src/bootloader-stamp"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix/tmp"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix/src/bootloader-stamp"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix/src"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/ESP32_IDF/blink/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/blink/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()
