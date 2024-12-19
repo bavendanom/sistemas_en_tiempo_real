@@ -1,0 +1,13 @@
+{
+    "C_Cpp.intelliSenseEngine": "default",
+    "idf.espIdfPath": "/home/bavendanom/esp/v5.3.1/esp-idf",
+    "idf.openOcdConfigs": [
+        "board/esp32-wrover-kit-3.3v.cfg"
+    ],
+    "idf.port": "/dev/ttyUSB0",
+    "idf.toolsPath": "/home/bavendanom/.espressif",
+    "idf.flashType": "UART",
+    "files.associations": {
+        "stdio.h": "c"
+    }
+}

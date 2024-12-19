@@ -1,0 +1,13 @@
+# Target labels
+ bootloader
+# Source files and their labels
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/CMakeFiles/bootloader
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/CMakeFiles/bootloader.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/CMakeFiles/bootloader-complete.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule
+/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/ADC_config/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule
