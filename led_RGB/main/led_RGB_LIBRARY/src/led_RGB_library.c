@@ -28,7 +28,8 @@ esp_err_t ledc_init_channel(led l) {
         .intr_type      = l.intr_type,
         .gpio_num       = l.gpio_num,
         .duty           = l.duty,
-        .hpoint         = 0
+        .hpoint         = 0,
+        .flags.output_invert = 1
     };
     return ledc_channel_config(&ledc_channel);
 }

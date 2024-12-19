@@ -15,6 +15,7 @@
     "idf.toolsPath": "/home/bavendanom/.espressif",
     "idf.flashType": "UART",
     "files.associations": {
-        "ledc.h": "c"
+        "ledc.h": "c",
+        "freertos.h": "c"
     }
 }

@@ -12,9 +12,9 @@
 #include "freertos/FreeRTOS.h"
 #include "led_RGB_LIBRARY/include/led_RGB_library.h"
 
-#define LEDC_OUTPUT_IO_RED        (4)   // GPIO para el LED rojo
-#define LEDC_OUTPUT_IO_GREEN      (17)  // GPIO para el LED verde
-#define LEDC_OUTPUT_IO_BLUE       (5)   // GPIO para el LED azul
+#define LEDC_OUTPUT_IO_RED        (21)   // GPIO para el LED rojo
+#define LEDC_OUTPUT_IO_GREEN      (18)  // GPIO para el LED verde
+#define LEDC_OUTPUT_IO_BLUE       (17)   // GPIO para el LED azul
 #define LEDC_DUTY_INITAL          (0)   // Duty inicial (apagado)Set duty to 50%. (2 ** 13) * 50% = 4096
 
 
@@ -74,7 +74,7 @@ void app_main(void)
         int max_value = 100;
         for (int i = 0; i < max_value; i++)
         {
-            rgb_set_color(mi_led_rgb, 0,0,i);
+            rgb_set_color(mi_led_rgb, i,i,i);
             vTaskDelay(100/portTICK_PERIOD_MS);
         }
     }
