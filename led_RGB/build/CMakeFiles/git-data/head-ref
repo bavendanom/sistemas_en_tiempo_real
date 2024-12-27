@@ -1,13 +1,1 @@
-0000000000000000000000000000000000000000 8ad383ef49ef7a9d35b7bffb0c0aedd1da11c483 bavendanom <bavendanom@unal.edu.co> 1732893411 -0500	clone: from https://github.com/bavendanom/sistemas_en_tiempo_real.git
-8ad383ef49ef7a9d35b7bffb0c0aedd1da11c483 1372e68e9198dd924b76927b672bb73c8de4f3d7 bavendanom <bavendanom@unal.edu.co> 1732893700 -0500	commit: esto es un prueaba loca
-1372e68e9198dd924b76927b672bb73c8de4f3d7 28122fd738602a5303245d688383e8ba70fffaa7 bavendanom <bavendanom@unal.edu.co> 1732893937 -0500	commit: se realizo el segundo commit
-28122fd738602a5303245d688383e8ba70fffaa7 eb4250009171f0ca230ccd889f48239ca7895a7d bavendanom <bavendanom@unal.edu.co> 1732934573 -0500	commit: Ejemplo del blink tomado desde los ejemplos que se ofrecen en ESP_idf
-eb4250009171f0ca230ccd889f48239ca7895a7d f1766022bafe301f1cd5a212a430078f9d58ce45 bavendanom <bavendanom@unal.edu.co> 1732934827 -0500	commit: Ejemplo de un toggle version 1
-f1766022bafe301f1cd5a212a430078f9d58ce45 68c585ff6aeadbaa8d0a4fba1fc824f55a3d319d bavendanom <bavendanom@unal.edu.co> 1732941437 -0500	commit: commit inicial
-68c585ff6aeadbaa8d0a4fba1fc824f55a3d319d 874124f679ded4d590e7b4ae6254a88932872a52 bavendanom <bavendanom@unal.edu.co> 1733188405 -0500	commit: Ejemplo del blink tomado desde los ejemplos ESP-IDDF
-874124f679ded4d590e7b4ae6254a88932872a52 6f21a3d5f817bdcd4cb6e5c005c182ceb31533f8 bavendanom <bavendanom@unal.edu.co> 1733288763 -0500	commit: Encender y apagar un led con un boton - se utilzo el ejemplo de gpio
-6f21a3d5f817bdcd4cb6e5c005c182ceb31533f8 2b45954d30033174ccbd9ead89897b3760121538 bavendanom <bavendanom@unal.edu.co> 1733289703 -0500	commit: Ejemplo del blink tomado desde los ejemplos ESP-IDDF
-2b45954d30033174ccbd9ead89897b3760121538 f288de0f8b7bc7daa2f33882df82c8759a904141 bavendanom <bavendanom@unal.edu.co> 1733290235 -0500	pull --rebase origin main (finish): refs/heads/main onto 596ca1dcb5bdddc45103e7b3634a4fa8e4d9d52e
-f288de0f8b7bc7daa2f33882df82c8759a904141 61f299664ffb17c7600e25fd1085022fead8f9a7 bavendanom <bavendanom@unal.edu.co> 1733290395 -0500	pull --rebase origin main (finish): refs/heads/main onto 836571ac4a5e660b6208a6ff13b751ee07e888ee
-61f299664ffb17c7600e25fd1085022fead8f9a7 057dd31e127de847b76222c546c34bb9831c8a37 bavendanom <bavendanom@unal.edu.co> 1733290519 -0500	commit: Ejemplo del blink tomado desde los ejemplos ESP-IDDF
-057dd31e127de847b76222c546c34bb9831c8a37 43a81cc38f54e7fb38667db3db05631a86f02eab bavendanom <bavendanom@unal.edu.co> 1733800452 -0500	commit: Version 1 - Configuración de un led RGB, se ajusta el duty de cada color de 0 - 100%
+199b7b6e4155dfc54f13b6afb284cc7f50ba5f9b
