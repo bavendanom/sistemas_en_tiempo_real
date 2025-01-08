@@ -32,7 +32,7 @@ const static char *TAG = "EXAMPLE";
 ---------------------------------------------------------------*/
 
 
-#define LEDC_OUTPUT_IO_RED        (21)   // GPIO para el LED rojo
+#define LEDC_OUTPUT_IO_RED        (19)   // GPIO para el LED rojo
 #define LEDC_OUTPUT_IO_GREEN      (18)  // GPIO para el LED verde
 #define LEDC_OUTPUT_IO_BLUE       (17)   // GPIO para el LED azul
 #define LEDC_DUTY_INITAL          (0)   // Duty inicial (apagado)Set duty to 50%. (2 ** 13) * 50% = 4096
@@ -46,10 +46,15 @@ const static char *TAG = "EXAMPLE";
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<GPIO_INPUT_IO_0) | (1ULL<<GPIO_INPUT_IO_1))
 
 #define ESP_INTR_FLAG_DEFAULT 0
-static QueueHandle_t gpio_evt_queue = NULL;
-static QueueHandle_t led_evt_queue = NULL;
 
-static uint8_t current_color = 0;
+// Definición de colores usando enum
+typedef enum {
+    RED = 0,
+    GREEN,
+    BLUE
+} color_t;
+
+static uint8_t current_color = RED; // Color actual del LED
 
 #if (SOC_ADC_PERIPH_NUM >= 2) && !CONFIG_IDF_TARGET_ESP32C3
 /**
@@ -63,93 +68,44 @@ static uint8_t current_color = 0;
 
 static int adc_raw[2][10];
 static int voltage[2][10];
+// Prototipo para inicializar la calibración del ADC
 static bool example_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_atten_t atten, adc_cali_handle_t *out_handle);
+// Prototipo para desinicializar la calibración del ADC
 static void example_adc_calibration_deinit(adc_cali_handle_t handle);
 
 // Estructura para configurar el LED RGB
 led_RGB mi_led_rgb = {
         .led_red = {
             .gpio_num    = LEDC_OUTPUT_IO_RED,
-            .speed_mode  = LEDC_LOW_SPEED_MODE,
             .channel     = LEDC_CHANNEL_0,
-            .intr_type   = LEDC_INTR_DISABLE,
-            .timer_sel   = LEDC_TIMER_0,
             .duty        = LEDC_DUTY_INITAL
         },
         .led_green = {
             .gpio_num    = LEDC_OUTPUT_IO_GREEN,
-            .speed_mode  = LEDC_LOW_SPEED_MODE,
             .channel     = LEDC_CHANNEL_1,
-            .intr_type   = LEDC_INTR_DISABLE,
-            .timer_sel   = LEDC_TIMER_0,
             .duty        = LEDC_DUTY_INITAL
         },
         .led_blue = {
             .gpio_num    = LEDC_OUTPUT_IO_BLUE,
-            .speed_mode  = LEDC_LOW_SPEED_MODE,
             .channel     = LEDC_CHANNEL_2,
-            .intr_type   = LEDC_INTR_DISABLE,
-            .timer_sel   = LEDC_TIMER_0,
             .duty        = LEDC_DUTY_INITAL
         }
-    };
+};
 
 // Función para inicializar un LED RGB
 static void rgb_init(led_RGB rgb) {
-    // LEDs individuales (rojo, verde, azul)
-    led leds[] = {rgb.led_red, rgb.led_green, rgb.led_blue};
-
-    // Inicializar timers y canales de cada LED
-    for (int i = 0; i < 3; i++) {
-        ledc_init_timer(leds[i]);
-        ledc_init_channel(leds[i]);
-    }
+    // Inicializar timers de cada LED
+    ledc_init_timer();
+    ledc_initialize_rgb(rgb);
 }
 
+// Manejador de interrupciones para GPIO
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
-    uint32_t gpio_num = (uint32_t) arg;
-    xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
-
     // Cambiar el color actual (ciclo entre 0, 1 y 2)
     current_color = (current_color + 1) % 3;
 }
-static void gpio_task_example(void* arg)
-{
-    uint32_t io_num;
-    for (;;) {
-        if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
-            printf("GPIO[%"PRIu32"] intr, val: %d\n", io_num, gpio_get_level(io_num));
-            //gpio_set_level(CONFIG_GPIO_OUTPUT_0, s_led_state);
-            // Leer el valor del ADC
-        }
-    }
-}
-/* static void led_example(void* arg){
-    uint32_t io_num;
-    uint32_t brightness;
-    for (;;) {
-        if (xQueueReceive(gpio_evt_queue, &io_num, portMAX_DELAY)) {
 
-            switch (current_color)
-            {
-                case 0:
-                    xQueueReceive(led_evt_queue,&brightness, portMAX_DELAY);
-                    rgb_set_color(mi_led_rgb, brightness, 0, 0); // Rojo
-                    break;
-                case 1:
-                    rgb_set_color(mi_led_rgb, 0, brightness, 0); // Verde
-                    break;
-                case 2:
-                    rgb_set_color(mi_led_rgb, 0, 0, brightness); // Azul
-                    break;
-                default:
-                    break;
-            }
-
-        }
-    }
-} */
 static void config_button(){
     //zero-initialize the config structure.
     gpio_config_t io_conf = {};
@@ -166,19 +122,16 @@ static void config_button(){
     //change gpio interrupt type for one pin
     gpio_set_intr_type(GPIO_INPUT_IO_0, GPIO_INTR_POSEDGE);
 
-    //create a queue to handle gpio event from isr
-    gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    //start gpio task
-    xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
     //install gpio isr service
     gpio_install_isr_service(ESP_INTR_FLAG_DEFAULT);
+
     //hook isr handler for specific gpio pin
     gpio_isr_handler_add(GPIO_INPUT_IO_0, gpio_isr_handler, (void*) GPIO_INPUT_IO_0);
+
     //hook isr handler for specific gpio pin
     gpio_isr_handler_add(GPIO_INPUT_IO_1, gpio_isr_handler, (void*) GPIO_INPUT_IO_1);
 
     printf("Minimum free heap size: %"PRIu32" bytes\n", esp_get_minimum_free_heap_size());
-
 }
 void app_main(void)
 {
@@ -207,45 +160,31 @@ void app_main(void)
     bool do_calibration1_chan0 = example_adc_calibration_init(ADC_UNIT_1, EXAMPLE_ADC1_CHAN0, EXAMPLE_ADC_ATTEN, &adc1_cali_chan0_handle);
     bool do_calibration1_chan1 = example_adc_calibration_init(ADC_UNIT_1, EXAMPLE_ADC1_CHAN1, EXAMPLE_ADC_ATTEN, &adc1_cali_chan1_handle);
 
-    
-    led_evt_queue = xQueueCreate(10, sizeof(uint32_t));
-    //xTaskCreate(led_example, "led_example", 2048, NULL, 10, NULL);
-
     while (1) {
         ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, EXAMPLE_ADC1_CHAN0, &adc_raw[0][0]));
-        //ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN0, adc_raw[0][0]);
-
+        
         int32_t duty = (100 * adc_raw[0][0])/4095; 
+
+        // Cambiar el color del LED basado en el valor actual
         switch (current_color)
             {
-                case 0:
+                case RED:
                     rgb_set_color(mi_led_rgb, duty, 0, 0); // Rojo
                     break;
-                case 1:
+                case GREEN:
                     rgb_set_color(mi_led_rgb, 0, duty, 0); // Verde
                     break;
-                case 2:
+                case BLUE:
                     rgb_set_color(mi_led_rgb, 0, 0, duty); // Azul
                     break;
                 default:
                     break;
-            }
+            } 
         
-
         if (do_calibration1_chan0) {
-            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0]));
-            //ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN0, voltage[0][0]);
-        } 
-        vTaskDelay(pdMS_TO_TICKS(100));
-        
-
-        /* ESP_ERROR_CHECK(adc_oneshot_read(adc1_handle, EXAMPLE_ADC1_CHAN1, &adc_raw[0][1]));
-        ESP_LOGI(TAG, "ADC%d Channel[%d] Raw Data: %d", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN1, adc_raw[0][1]);
-        if (do_calibration1_chan1) {
-            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan1_handle, adc_raw[0][1], &voltage[0][1]));
-            ESP_LOGI(TAG, "ADC%d Channel[%d] Cali Voltage: %d mV", ADC_UNIT_1 + 1, EXAMPLE_ADC1_CHAN1, voltage[0][1]);
+            ESP_ERROR_CHECK(adc_cali_raw_to_voltage(adc1_cali_chan0_handle, adc_raw[0][0], &voltage[0][0])); 
         }
-        vTaskDelay(pdMS_TO_TICKS(1000)); */
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 
     //Tear Down
@@ -255,7 +194,7 @@ void app_main(void)
     }
     if (do_calibration1_chan1) {
         example_adc_calibration_deinit(adc1_cali_chan1_handle);
-    }
+    } 
 }
 
 /*---------------------------------------------------------------
@@ -301,4 +240,4 @@ static void example_adc_calibration_deinit(adc_cali_handle_t handle)
     ESP_LOGI(TAG, "deregister %s calibration scheme", "Line Fitting");
     ESP_ERROR_CHECK(adc_cali_delete_scheme_line_fitting(handle));
 #endif
-}
+} 
