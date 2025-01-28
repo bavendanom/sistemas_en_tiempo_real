@@ -16,15 +16,7 @@ typedef struct {
     bool do_calibration;
 } adc_config_t; 
 
-typedef struct {
-    adc_oneshot_unit_handle_t adc_handle;
-    adc_unit_t adc_unit;
-} config_unit;
-
-
-
-config_unit init_adc(adc_unit_t adc_unit);
-esp_err_t init_adc_ch(adc_config_t *adc_config, config_unit init_adc);
+esp_err_t init_adc(adc_config_t *adc_config);
 esp_err_t read_adc_raw(adc_config_t *adc_config, int *adc_raw_value);
 esp_err_t read_voltage(adc_config_t *adc_config, int adc_raw_value, int *adc_voltage);
 esp_err_t deinit_adc(adc_config_t *adc_config);

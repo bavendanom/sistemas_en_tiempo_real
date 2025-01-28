@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "temp_ntc_rgb_uart",
-    "project_version":    "5ff4825-dirty",
+    "project_version":    "1f40738",
     "project_path":       "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart",
     "idf_path":           "C:/Users/braya/esp/v5.4/esp-idf",
     "build_dir":          "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/build",
@@ -1195,8 +1195,8 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/oneshot_read_main.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/NTC_library/src/NTC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/ADC_library/src/ADC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/led_RGB_LIBRARY/src/led_RGB_library.c" ],
-            "include_dirs": [ "NTC_library/include", "ADC_library/include", "led_RGB_LIBRARY/include" ]
+            "sources": [ "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/oneshot_read_main.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/NTC_library/src/NTC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/temp_ntc_rgb_uart/main/ADC_library/src/ADC_library.c" ],
+            "include_dirs": [ "NTC_library/include", "ADC_library/include" ]
         },
         "mbedtls": {
             "alias": "idf::mbedtls",
@@ -2845,7 +2845,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "include_dirs": [ "NTC_library/include", "ADC_library/include", "led_RGB_LIBRARY/include" ]
+            "include_dirs": [ "NTC_library/include", "ADC_library/include" ]
         }
     },
     "debug_prefix_map_gdbinit": ""

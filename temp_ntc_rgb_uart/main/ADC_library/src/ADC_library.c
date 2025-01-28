@@ -1,45 +1,31 @@
 #include "ADC_library.h"
 
 
-config_unit init_adc(adc_unit_t adc_unit) {
+esp_err_t init_adc(adc_config_t *adc_config) {
     // Validate the ADC unit
-    if (adc_unit != ADC_UNIT_1 && adc_unit != ADC_UNIT_2) {
+    if (adc_config->unit != ADC_UNIT_1 && adc_config->unit != ADC_UNIT_2) {
         printf("Invalid ADC unit specified.\n");
+        return ESP_ERR_INVALID_ARG;
     }
 
-    //-------------ADC1 Init---------------//
-    adc_oneshot_unit_handle_t adc_handle;
+    //-------------ADC Init---------------//
     adc_oneshot_unit_init_cfg_t init_config = {
-        .unit_id = adc_unit,
+        .unit_id = adc_config->unit,
     };
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config, &adc_handle));
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config, &adc_config->handle));
 
-    config_unit config_unit_adc = {
-        .adc_unit = adc_unit,
-        .adc_handle = adc_handle
-    };
-
-    return config_unit_adc;
-}
-
-esp_err_t init_adc_ch(adc_config_t *adc_config, config_unit init_adc){
-     //-------------ADC Config---------------//
+    //-------------ADC Config---------------//
     adc_oneshot_chan_cfg_t config = {
         .atten = adc_config->attenuation,
         .bitwidth = ADC_BITWIDTH_DEFAULT,
     };
-    adc_config->handle = init_adc.adc_handle ;
-    adc_config->unit = init_adc.adc_unit ;
-
-
-    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_config->handle , adc_config->channel, &config));
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc_config->handle, adc_config->channel, &config));
 
     //-------------ADC Calibration Init---------------//
     adc_config->cali_handle = NULL;
     adc_config->do_calibration = example_adc_calibration_init(adc_config->unit, adc_config->channel, adc_config->attenuation, &(adc_config->cali_handle));
     return ESP_OK;
 }
-
 
 esp_err_t read_adc_raw(adc_config_t *adc_config, int *adc_raw_value) {
     if (adc_config->handle == NULL) {

@@ -17,6 +17,5 @@
     "files.associations": {
         "ledc.h": "c",
         "freertos.h": "c"
-    },
-    "idf.portWin": "COM4"
+    }
 }

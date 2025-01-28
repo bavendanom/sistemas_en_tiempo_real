@@ -8,8 +8,6 @@
     "idf.toolsPath": "/home/bavendanom/.espressif",
     "idf.flashType": "UART",
     "files.associations": {
-        "stdio.h": "c",
-        "led_rgb_library.h": "c",
-        "ledc.h": "c"
+        "stdio.h": "c"
     }
 }

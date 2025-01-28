@@ -3,25 +3,20 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-# If CMAKE_DISABLE_SOURCE_CHANGES is set to true and the source directory is an
-# existing directory in our source tree, calling file(MAKE_DIRECTORY) on it
-# would cause a fatal error, even though it would be a no-op.
-if(NOT EXISTS "C:/Users/braya/esp/v5.4/esp-idf/components/bootloader/subproject")
-  file(MAKE_DIRECTORY "C:/Users/braya/esp/v5.4/esp-idf/components/bootloader/subproject")
-endif()
 file(MAKE_DIRECTORY
-  "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader"
-  "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix"
-  "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/tmp"
-  "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp"
-  "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src"
-  "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp"
+  "/home/bavendanom/esp/v5.3.1/esp-idf/components/bootloader/subproject"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/tmp"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src"
+  "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp"
 )
 
 set(configSubDirs )
 foreach(subDir IN LISTS configSubDirs)
-    file(MAKE_DIRECTORY "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
+    file(MAKE_DIRECTORY "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp/${subDir}")
 endforeach()
 if(cfgdir)
-  file(MAKE_DIRECTORY "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
+  file(MAKE_DIRECTORY "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/led_RGB/build/bootloader-prefix/src/bootloader-stamp${cfgdir}") # cfgdir has leading slash
 endif()
