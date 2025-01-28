@@ -12,9 +12,9 @@
 #include "freertos/FreeRTOS.h"
 #include "led_RGB_LIBRARY/include/led_RGB_library.h"
 
-#define LEDC_OUTPUT_IO_RED        (5)   // GPIO para el LED rojo
+#define LEDC_OUTPUT_IO_RED        (21)   // GPIO para el LED rojo
 #define LEDC_OUTPUT_IO_GREEN      (19)  // GPIO para el LED verde
-#define LEDC_OUTPUT_IO_BLUE       (17)   // GPIO para el LED azul
+#define LEDC_OUTPUT_IO_BLUE       (18)   // GPIO para el LED azul
 #define LEDC_DUTY_INITAL          (0)   // Duty inicial (apagado) Set duty to 50%. (2 ** 13) * 50% = 4096
 
 // Estructura para configurar el LED RGB
