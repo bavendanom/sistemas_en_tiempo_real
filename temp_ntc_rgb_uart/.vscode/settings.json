@@ -6,5 +6,5 @@
     ],
     "idf.toolsPathWin": "C:\\Users\\braya\\.espressif",
     "idf.flashType": "UART",
-    "idf.portWin": "COM6"
+    "idf.portWin": "COM4"
 }
