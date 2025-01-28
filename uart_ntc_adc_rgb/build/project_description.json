@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "uart_ntc_adc_rgb",
-    "project_version":    "0ddf65c-dirty",
+    "project_version":    "188d69e-dirty",
     "project_path":       "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb",
     "idf_path":           "C:/Users/braya/esp/v5.4/esp-idf",
     "build_dir":          "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/build",
