@@ -6,17 +6,36 @@ config_unit init_adc(adc_unit_t adc_unit) {
     if (adc_unit != ADC_UNIT_1 && adc_unit != ADC_UNIT_2) {
         printf("Invalid ADC unit specified.\n");
     }
+    
+    // Variable estática para rastrear si ya fue configurado
+    static adc_oneshot_unit_handle_t adc_handle_1= NULL;
+    static adc_oneshot_unit_handle_t adc_handle_2 = NULL;
+    adc_oneshot_unit_handle_t *adc_handle = NULL;
 
-    //-------------ADC1 Init---------------//
-    adc_oneshot_unit_handle_t adc_handle;
+    if (adc_unit == ADC_UNIT_1) {
+        adc_handle = &adc_handle_1;
+    } else if (adc_unit == ADC_UNIT_2) {
+        adc_handle = &adc_handle_2;
+    }
+
+    // Si ya está configurado, devolver el handle existente
+    if (*adc_handle != NULL) {
+        config_unit config_unit_adc = {
+            .adc_unit = adc_unit,
+            .adc_handle = *adc_handle
+        };
+        return config_unit_adc;
+    }
+
+    //adc_oneshot_unit_handle_t adc_handle;
     adc_oneshot_unit_init_cfg_t init_config = {
         .unit_id = adc_unit,
     };
-    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config, &adc_handle));
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config, adc_handle));
 
     config_unit config_unit_adc = {
         .adc_unit = adc_unit,
-        .adc_handle = adc_handle
+        .adc_handle = *adc_handle
     };
 
     return config_unit_adc;
@@ -46,8 +65,7 @@ esp_err_t read_adc_raw(adc_config_t *adc_config, int *adc_raw_value) {
         printf("ADC handle is not initialized.\n");
         return ESP_ERR_INVALID_STATE;
     }
-    return adc_oneshot_read(adc_config->handle, adc_config->channel, adc_raw_value);
-    
+    return adc_oneshot_read(adc_config->handle, adc_config->channel, adc_raw_value);   
 }
 
 esp_err_t read_voltage(adc_config_t *adc_config, int adc_raw_value, int *adc_voltage) {

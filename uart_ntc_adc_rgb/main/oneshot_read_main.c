@@ -33,9 +33,6 @@
 static int adc_raw[2][10];
 static int voltage[2][10];
 
-// Definir una variable global para la temperatura y un mutex
-float T_Celsius = 0.0;
-SemaphoreHandle_t temp_mutex; 
 
 // Estructura para configurar el ADC 1 en el canal 4 
 adc_config_t adc1_config_ch4 = {
@@ -48,6 +45,12 @@ adc_config_t adc1_config_ch4 = {
 // Estructura para configurar el ADC 1 en el canal 4 
 adc_config_t adc1_config_ch5 = {
     .channel = ADC_CHANNEL_5,
+    .attenuation = ADC_ATTEN_DB_12,
+    .cali_handle = NULL,
+    .do_calibration = false
+};
+adc_config_t adc2_config_ch0 = {
+    .channel = ADC_CHANNEL_0,
     .attenuation = ADC_ATTEN_DB_12,
     .cali_handle = NULL,
     .do_calibration = false
@@ -98,49 +101,47 @@ static void rgb_init(led_RGB rgb) {
     ledc_initialize_rgb(rgb);
 }
 
-static void config_adc_unit(adc_config_t *acd_ch){
-    config_unit init_adc_unit = init_adc(ADC_UNIT_1);
+static void config_adc_unit(adc_config_t *acd_ch, adc_unit_t adc_unit ){
+    config_unit init_adc_unit = init_adc(adc_unit);
     init_adc_ch(acd_ch, init_adc_unit);
 }
 
 void NTC_task(void *pvParameter){
     float fixed_resistor = 100.0; // Resistencia fija en ohmios 
-    float reference_voltage = 3.3; // Voltaje de referencia
-
+    float reference_voltage = 3.3; // Voltaje de referencia 
     
-    
-    config_adc_unit(&adc1_config_ch4);
+    config_adc_unit(&adc1_config_ch4, ADC_UNIT_1);
+    config_adc_unit(&adc1_config_ch5, ADC_UNIT_1);
+    config_adc_unit(&adc2_config_ch0, ADC_UNIT_2);
 
     rgb_init(rgb_ntc);
     rgb_init(rgb_pot);
     
     while(1) {
         // Leer ADC
-        read_adc_raw(&adc1_config_ch4, &adc_raw[0][0]);
-        read_voltage(&adc1_config_ch4, adc_raw[0][0], &voltage[0][0]);
-        ESP_LOGI("adc_task", "Valor voltage del ADC: %d", voltage[0][0]);
+        read_adc_raw(&adc2_config_ch0, &adc_raw[1][0]);
+        read_voltage(&adc2_config_ch0, adc_raw[1][0], &voltage[1][0]);
+
+        ESP_LOGI("adc_task", "Valor voltage del ADC: %d", voltage[1][0]);
 
         // Convertir el voltaje medido de milivoltios a voltios
-        float voltage_out = voltage[0][0] / 1000.0; // Convertir de mV a V
+        float voltage_out = voltage[1][0] / 1000.0; // Convertir de mV a V
         
         // Calcular resistencia NTC y temperatura
-        
         float R_NTC = res_ntc(voltage_out, fixed_resistor, reference_voltage); 
         float temp_Celsius = tem_cel(R_NTC);  
 
         ESP_LOGI("adc_task", "Resistencia NTC: %.2f ohmios, Temperatura: %.2f °C", R_NTC, temp_Celsius);
         // Controlar el LED según la temperatura
         if (temp_Celsius >= 20 && temp_Celsius <= 30) {
-            rgb_set_color(rgb_ntc, 0, 0, 50); // LED rojo
+            rgb_set_color(rgb_ntc, 0, 0, temp_Celsius); // LED azul
         } else if (temp_Celsius >= 30 && temp_Celsius <= 40) {
-            rgb_set_color(rgb_ntc, 0, 50, 0); // LED verde
+            rgb_set_color(rgb_ntc, 0, temp_Celsius,0); // LED verde
         } else if (temp_Celsius >= 40 && temp_Celsius <= 50){
-            rgb_set_color(rgb_ntc, 50, 0, 0); // LED azul
+            rgb_set_color(rgb_ntc, temp_Celsius, 0 , 0); // LED rojo
         }
         vTaskDelay(pdMS_TO_TICKS(1000));
-        // Esperar 1 segundo antes de la siguiente lectura
     }
-
     deinit_adc(&adc1_config_ch5);
     deinit_adc(&adc1_config_ch4);
     vTaskDelete(NULL);
@@ -150,7 +151,6 @@ void app_main(void)
 {
     // Crear la tarea para leer ADC y calculos para la NTC
     xTaskCreate(&NTC_task, "NTC_task", 4096, NULL, 5, NULL);
-    
 
     // Otras inicializaciones o tareas pueden ir aquí
     while(1) {
