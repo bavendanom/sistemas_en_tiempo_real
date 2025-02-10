@@ -4,7 +4,11 @@
     "idf.openOcdConfigs": [
         "board/esp32-wrover-kit-3.3v.cfg"
     ],
-    "idf.portWin": "COM6",
+    "idf.portWin": "COM4",
     "idf.toolsPathWin": "C:\\Users\\braya\\.espressif",
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "files.associations": {
+        "*.inc": "c",
+        "uart_library.h": "c"
+    }
 }

@@ -1,7 +1,7 @@
 {
     "version":            "1.1",
     "project_name":       "uart_ntc_adc_rgb",
-    "project_version":    "cfdf42f-dirty",
+    "project_version":    "519c3b2-dirty",
     "project_path":       "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb",
     "idf_path":           "C:/Users/braya/esp/v5.4/esp-idf",
     "build_dir":          "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/build",
@@ -1195,8 +1195,8 @@
             "managed_reqs": [],
             "managed_priv_reqs": [],
             "file": "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/build/esp-idf/main/libmain.a",
-            "sources": [ "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/oneshot_read_main.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/NTC_library/src/NTC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/ADC_library/src/ADC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/led_RGB_LIBRARY/src/led_RGB_library.c" ],
-            "include_dirs": [ "NTC_library/include", "ADC_library/include", "led_RGB_LIBRARY/include" ]
+            "sources": [ "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/oneshot_read_main.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/NTC_library/src/NTC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/ADC_library/src/ADC_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/led_RGB_LIBRARY/src/led_RGB_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/uart_library/src/uart_library.c", "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/uart_ntc_adc_rgb/main/command_library/src/command_library.c" ],
+            "include_dirs": [ "NTC_library/include", "ADC_library/include", "led_RGB_LIBRARY/include", "uart_library/include", "command_library/include" ]
         },
         "mbedtls": {
             "alias": "idf::mbedtls",
@@ -2845,7 +2845,7 @@
             "priv_reqs": [],
             "managed_reqs": [],
             "managed_priv_reqs": [],
-            "include_dirs": [ "NTC_library/include", "ADC_library/include", "led_RGB_LIBRARY/include" ]
+            "include_dirs": [ "NTC_library/include", "ADC_library/include", "led_RGB_LIBRARY/include", "uart_library/include", "command_library/include" ]
         }
     },
     "debug_prefix_map_gdbinit": ""

@@ -21,6 +21,9 @@
 #include "NTC_library/include/NTC_library.h"
 #include "ADC_library/include/ADC_library.h"
 #include "led_RGB_LIBRARY/include/led_RGB_library.h"
+#include "uart_library/include/uart_library.h"
+#include "command_library/include/command_library.h"
+
 
 // Definicion de led 1 
 #define LEDC_OUTPUT_IO_RED_NTC       (21)   // GPIO para el LED rojo
@@ -36,17 +39,14 @@
 // Duty inicial para leds
 #define LEDC_DUTY_INITAL          (0)   // Duty inicial (apagado)Set duty to 50%. (2 ** 13) * 50% = 4096
 
-#define TXD_PIN (GPIO_NUM_1)
-#define RXD_PIN (GPIO_NUM_3)
 
 
 #define GPIO_INPUT_IO_0     0
 #define GPIO_INPUT_IO_1     5
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<GPIO_INPUT_IO_0) | (1ULL<<GPIO_INPUT_IO_1))
 
-static const int RX_BUF_SIZE = 1024;
 
-static QueueHandle_t gpio_evt_queue = NULL;
+
 
 static int adc_raw[2][10];
 static int voltage[2][10];
@@ -117,6 +117,7 @@ led_RGB rgb_pot = {
         }
 };
 
+//MARK: rgb_init
 // Función para inicializar un LED RGB
 static void rgb_init(led_RGB rgb) {
     // Inicializar timers de cada LED
@@ -124,11 +125,24 @@ static void rgb_init(led_RGB rgb) {
     ledc_initialize_rgb(rgb);
 }
 
+//MARK: config_adc_unit
 static void config_adc_unit(adc_config_t *acd_ch, adc_unit_t adc_unit ){
     config_unit init_adc_unit = init_adc(adc_unit);
     init_adc_ch(acd_ch, init_adc_unit);
 }
 
+
+void task_process_uart(void *arg) {
+    char received_cmd[RX_BUF_SIZE];
+    while (1) {
+        if (xQueueReceive(uart_rx_queue, received_cmd, portMAX_DELAY) == pdTRUE) {
+            process_command(received_cmd);
+        }
+    }
+}
+
+
+//MARK: NTC_task
 void NTC_task(void *pvParameter){
     float fixed_resistor = 100.0; // Resistencia fija en ohmios 
     float reference_voltage = 3.3; // Voltaje de referencia 
@@ -136,84 +150,62 @@ void NTC_task(void *pvParameter){
     config_adc_unit(&adc2_config_ch0, ADC_UNIT_2);
 
     rgb_init(rgb_ntc);
+
+    int MIN_RED = 40, MAX_RED = 50;
+    int MIN_GREEN = 20, MAX_GREEN = 40;
+    int MIN_BLUE = 10, MAX_BLUE = 30;
     
     while(1) {
         // Leer ADC
         read_adc_raw(&adc2_config_ch0, &adc_raw[1][0]);
         read_voltage(&adc2_config_ch0, adc_raw[1][0], &voltage[1][0]);
 
-        ESP_LOGI("adc_task", "Valor voltage del ADC: %d", voltage[1][0]);
+        //ESP_LOGI("adc_task", "Valor voltage del ADC: %d", voltage[1][0]);
 
         // Convertir el voltaje medido de milivoltios a voltios
         float voltage_out = voltage[1][0] / 1000.0; // Convertir de mV a V
         
         // Calcular resistencia NTC y temperatura
         float R_NTC = res_ntc(voltage_out, fixed_resistor, reference_voltage); 
-        float temp_Celsius = tem_cel(R_NTC);  
+        float temp_Celsius = tem_cel(R_NTC);
 
-        ESP_LOGI("adc_task", "Resistencia NTC: %.2f ohmios, Temperatura: %.2f °C", R_NTC, temp_Celsius);
-        // Controlar el LED según la temperatura
-        if (temp_Celsius >= 10 && temp_Celsius <= 30) {
-            rgb_set_color(rgb_ntc, 0, 0, temp_Celsius); // LED azul
-        } else if (temp_Celsius >= 30 && temp_Celsius <= 40) {
-            rgb_set_color(rgb_ntc, 0, temp_Celsius,0); // LED verde
-        } else if (temp_Celsius >= 40 && temp_Celsius <= 50){
-            rgb_set_color(rgb_ntc, temp_Celsius, 0 , 0); // LED rojo
+        //int MI_RED;
+
+
+        xQueueReset(temp_queue);  
+        xQueueSend(temp_queue, &temp_Celsius , portMAX_DELAY);
+
+        xQueueReceive(min_red_queue , &MIN_RED, pdMS_TO_TICKS(100));
+        xQueueReceive(max_red_queue , &MAX_RED, pdMS_TO_TICKS(100));
+        xQueueReceive(min_blue_queue , &MIN_BLUE, pdMS_TO_TICKS(100));
+        xQueueReceive(max_blue_queue , &MAX_BLUE, pdMS_TO_TICKS(100));
+        xQueueReceive(min_green_queue , &MIN_GREEN, pdMS_TO_TICKS(100));
+        xQueueReceive(max_green_queue , &MAX_GREEN, pdMS_TO_TICKS(100));
+
+
+       // **Acumular los colores antes de actualizar el LED**
+        int red_value = 0, green_value = 0, blue_value = 0;
+
+        if (temp_Celsius >= MIN_RED && temp_Celsius <= MAX_RED) {
+            red_value = temp_Celsius;  // Asigna intensidad proporcional a la temperatura
         }
+        if (temp_Celsius >= MIN_GREEN && temp_Celsius <= MAX_GREEN) {
+            green_value = temp_Celsius;
+        }
+        if (temp_Celsius >= MIN_BLUE && temp_Celsius <= MAX_BLUE) {
+            blue_value = temp_Celsius;
+        }
+
+        // **Aplicar todos los colores al mismo tiempo**
+        rgb_set_color(rgb_ntc, red_value, green_value, blue_value);
+
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
     deinit_adc(&adc2_config_ch0);
     vTaskDelete(NULL);
 }
-void init_uart(void)
-{
-    const uart_config_t uart_config = {
-        .baud_rate = 115200,
-        .data_bits = UART_DATA_8_BITS,
-        .parity = UART_PARITY_DISABLE,
-        .stop_bits = UART_STOP_BITS_1,
-        .flow_ctrl = UART_HW_FLOWCTRL_DISABLE,
-        .source_clk = UART_SCLK_DEFAULT,
-    };
-    // We won't use a buffer for sending data.
-    uart_driver_install(UART_NUM_0, RX_BUF_SIZE * 2, 0, 0, NULL, 0);
-    uart_param_config(UART_NUM_0, &uart_config);
-    uart_set_pin(UART_NUM_0, TXD_PIN, RXD_PIN, UART_PIN_NO_CHANGE, UART_PIN_NO_CHANGE);
-}
 
-int sendData(const char* logName, const char* data)
-{
-    const int len = strlen(data);
-    const int txBytes = uart_write_bytes(UART_NUM_0, data, len);
-    ESP_LOGI(logName, "Wrote %d bytes", txBytes);
-    return txBytes;
-}
 
-static void tx_task(void *arg)
-{
-    static const char *TX_TASK_TAG = "TX_TASK";
-    esp_log_level_set(TX_TASK_TAG, ESP_LOG_INFO);
-    while (1) {
-        sendData(TX_TASK_TAG, "Hello world");
-        vTaskDelay(2000/portTICK_PERIOD_MS);
-    }
-}
-
-static void rx_task(void *arg)
-{
-    static const char *RX_TASK_TAG = "RX_TASK";
-    esp_log_level_set(RX_TASK_TAG, ESP_LOG_INFO);
-    uint8_t* data = (uint8_t*) malloc(RX_BUF_SIZE + 1);
-    while (1) {
-        const int rxBytes = uart_read_bytes(UART_NUM_0, data, RX_BUF_SIZE, 1000 / portTICK_PERIOD_MS);
-        if (rxBytes > 0) {
-            data[rxBytes] = 0;
-            ESP_LOGI(RX_TASK_TAG, "Read %d bytes: '%s'", rxBytes, data);
-            ESP_LOG_BUFFER_HEXDUMP(RX_TASK_TAG, data, rxBytes, ESP_LOG_INFO);
-        }
-    }
-    free(data);
-}
 // Manejador de interrupciones para GPIO
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
@@ -221,6 +213,7 @@ static void IRAM_ATTR gpio_isr_handler(void* arg)
     current_color = (current_color + 1) % 3;
 }
 
+//MARK: config_button
 static void config_button(){
     //zero-initialize the config structure.
     gpio_config_t io_conf = {};
@@ -249,10 +242,11 @@ static void config_button(){
     printf("Minimum free heap size: %"PRIu32" bytes\n", esp_get_minimum_free_heap_size());
 }
 
+
+//MARK: button_task
 static void button_task(){
     rgb_init(rgb_pot);
     config_adc_unit(&adc1_config_ch4, ADC_UNIT_1);
-    // Leer ADC
     
     while (1)
     {
@@ -276,18 +270,21 @@ static void button_task(){
     }      
 }
 
+
+//MARK: app_main
 void app_main(void)
 {
-    init_uart();
     config_button();
     
+    uart_init();
+    comandos_init();
     // Crear la tarea para leer ADC y calculos para la NTC
-    xTaskCreate(NTC_task, "NTC_task", 4096, NULL, 5, NULL);
-    xTaskCreate(button_task, "uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES -  3, NULL);
-    xTaskCreate(rx_task, "uart_rx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 1, NULL);
-    xTaskCreate(tx_task, "uart_tx_task", 1024 * 2, NULL, configMAX_PRIORITIES - 2, NULL);
-    // Otras inicializaciones o tareas pueden ir aquí
+    xTaskCreate(NTC_task, "NTC_task", 4096*2, NULL, 5, NULL);
+    xTaskCreate(button_task, "button_task", 4096, NULL, configMAX_PRIORITIES -  3, NULL);
+    xTaskCreate(rx_task, "rx_task", 4096, NULL, 5, NULL);
+    xTaskCreate(task_process_uart, "task_process_uart", 4096, NULL, 5, NULL);
+    
     while(1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
     }
-}
+} 

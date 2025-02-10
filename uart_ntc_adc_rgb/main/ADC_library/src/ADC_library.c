@@ -101,7 +101,7 @@ bool example_adc_calibration_init(adc_unit_t unit, adc_channel_t channel, adc_at
             .chan = channel,
             .atten = atten,
             .bitwidth = ADC_BITWIDTH_DEFAULT,
-        };
+        };`
         ret = adc_cali_create_scheme_curve_fitting(&cali_config, &handle);
         if (ret == ESP_OK) {
             calibrated = true;
