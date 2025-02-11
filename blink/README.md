@@ -16,7 +16,7 @@ El proyecto demuestra cómo configurar un pin GPIO como salida y hacer parpadear
    ```bash
    git clone https://github.com/bavendanom/sistemas_en_tiempo_real
 
-![ESP32]("https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/blink/ESP32.png")
+![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/blink/ESP32.png?raw=true)
 
 
 ## Salida
