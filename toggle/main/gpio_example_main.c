@@ -28,18 +28,15 @@
  * Note. These are the default GPIO pins to be used in the example. You can
  * change IO pins in menuconfig.
  *
- * Test:
- * Connect GPIO18(8) with GPIO4
- * Connect GPIO19(9) with GPIO5
- * Generate pulses on GPIO18(8)/19(9), that triggers interrupt on GPIO4/5
+ 
  *
  */
 
-#define GPIO_OUTPUT_IO_0    CONFIG_GPIO_OUTPUT_0
+#define GPIO_OUTPUT_IO_0    CONFIG_GPIO_OUTPUT_0   
 #define GPIO_OUTPUT_IO_1    CONFIG_GPIO_OUTPUT_1
 #define GPIO_OUTPUT_PIN_SEL  ((1ULL<<GPIO_OUTPUT_IO_0) | (1ULL<<GPIO_OUTPUT_IO_1))
 /*
- * Let's say, GPIO_OUTPUT_IO_0=18, GPIO_OUTPUT_IO_1=19
+ * Let's say, GPIO_OUTPUT_IO_0=2, GPIO_OUTPUT_IO_1=18
  * In binary representation,
  * 1ULL<<GPIO_OUTPUT_IO_0 is equal to 0000000000000000000001000000000000000000 and
  * 1ULL<<GPIO_OUTPUT_IO_1 is equal to 0000000000000000000010000000000000000000
@@ -49,7 +46,7 @@
 #define GPIO_INPUT_IO_1     CONFIG_GPIO_INPUT_1
 #define GPIO_INPUT_PIN_SEL  ((1ULL<<GPIO_INPUT_IO_0) | (1ULL<<GPIO_INPUT_IO_1))
 /*
- * Let's say, GPIO_INPUT_IO_0=4, GPIO_INPUT_IO_1=5
+ * Let's say, GPIO_INPUT_IO_0=0, GPIO_INPUT_IO_1=5
  * In binary representation,
  * 1ULL<<GPIO_INPUT_IO_0 is equal to 0000000000000000000000000000000000010000 and
  * 1ULL<<GPIO_INPUT_IO_1 is equal to 0000000000000000000000000000000000100000

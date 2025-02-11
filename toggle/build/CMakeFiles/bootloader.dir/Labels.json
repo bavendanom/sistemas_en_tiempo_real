@@ -2,34 +2,34 @@
 	"sources" : 
 	[
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/CMakeFiles/bootloader"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/CMakeFiles/bootloader"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/CMakeFiles/bootloader.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/CMakeFiles/bootloader.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/CMakeFiles/bootloader-complete.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/CMakeFiles/bootloader-complete.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-build.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-configure.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-download.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-install.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-mkdir.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-patch.rule"
 		},
 		{
-			"file" : "/home/bavendanom/Documentos/9_Semestre/Sistemas_en_tiempo_real/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
+			"file" : "C:/Users/braya/OneDrive/Documentos/9_Semestre/sistemas_en_tiempo_real/toggle/build/bootloader-prefix/src/bootloader-stamp/bootloader-update.rule"
 		}
 	],
 	"target" : 

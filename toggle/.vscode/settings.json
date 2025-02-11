@@ -13,5 +13,6 @@
     "idf.port": "/dev/ttyUSB0",
     "idf.pythonBinPath": "/home/bavendanom/.espressif/python_env/idf5.3_py3.11_env/bin/python",
     "idf.toolsPath": "/home/bavendanom/.espressif",
-    "idf.flashType": "UART"
+    "idf.flashType": "UART",
+    "idf.portWin": "COM4"
 }
