@@ -26,7 +26,7 @@ Se utilza el led y el boton incorporados en la placa de desarrollo
 1. Clona este repositorio o descarga el código.
    ```bash
    git clone https://github.com/bavendanom/sistemas_en_tiempo_real
-![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/toogle/ESP32.png?raw=true)
+![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/toggle/ESP32.png?raw=true)
 
 
 ## Authors
