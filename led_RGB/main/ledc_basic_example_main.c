@@ -21,25 +21,32 @@
 led_RGB mi_led_rgb = {
         .led_red = {
             .gpio_num    = LEDC_OUTPUT_IO_RED,
+            .timmer      = LEDC_TIMER_0,
             .channel     = LEDC_CHANNEL_0,
-            .duty        = LEDC_DUTY_INITAL
+            .duty        = LEDC_DUTY_INITAL,
+            .flag_output_invert = 1
         },
         .led_green = {
             .gpio_num    = LEDC_OUTPUT_IO_GREEN,
+            .timmer      = LEDC_TIMER_0,
             .channel     = LEDC_CHANNEL_1,
-            .duty        = LEDC_DUTY_INITAL
+            .duty        = LEDC_DUTY_INITAL,
+            .flag_output_invert = 1
         },
         .led_blue = {
             .gpio_num    = LEDC_OUTPUT_IO_BLUE,
+            .timmer      = LEDC_TIMER_0,
             .channel     = LEDC_CHANNEL_2,
-            .duty        = LEDC_DUTY_INITAL
+            .duty        = LEDC_DUTY_INITAL,
+            .flag_output_invert = 1
         }
     };
 
 // Función para inicializar un LED RGB
 static void rgb_init(led_RGB rgb) {
     // Inicializar timers y canales de cada LED
-    ledc_init_timer();
+    // Inicializa el temporizador usando solo uno de los LEDs (se asume que los tres usan el mismo timer)
+    ledc_init_timer(rgb.led_red);
     ledc_initialize_rgb(rgb);
 }
 

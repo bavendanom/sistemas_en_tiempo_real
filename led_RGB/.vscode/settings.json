@@ -18,5 +18,5 @@
         "ledc.h": "c",
         "freertos.h": "c"
     },
-    "idf.portWin": "COM4"
+    "idf.portWin": "COM5"
 }

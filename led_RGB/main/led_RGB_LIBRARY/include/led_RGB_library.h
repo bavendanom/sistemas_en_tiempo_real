@@ -7,9 +7,11 @@
 
 // Estructura para representar un LED
 typedef struct {
-    int gpio_num;                   // Número de pin GPIO conectado al LED
-    ledc_channel_t channel;         // Canal del controlador LED
-    uint32_t duty;                  // Ciclo de trabajo inicial (duty)
+    int gpio_num;                    // Número de pin GPIO conectado al LED
+    ledc_timer_t timmer;             // Timmer del controlador LED
+    ledc_channel_t channel;          // Canal del controlador LED
+    uint32_t duty;                   // Ciclo de trabajo inicial (duty)
+    unsigned int flag_output_invert; // /*!< Enable (1) or disable (0) gpio output invert */
 } led;
 
 // Estructura para representar un LED RGB
@@ -26,7 +28,7 @@ typedef struct {
  * 
  * @return esp_err_t ESP_OK si se inicializó correctamente, otro valor en caso de error.
  */
-esp_err_t ledc_init_timer(void);
+esp_err_t ledc_init_timer(led l);
 
 /**
  * @brief Configura el canal del controlador LEDC para un LED.

@@ -1,82 +1,70 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+## Control de LED RGB con ESP32 y LEDC
 
-# _LEDC Basic Example_
+Este proyecto demuestra cómo controlar un LED RGB utilizando el controlador LEDC (LED Controller) en un microcontrolador ESP32. El código permite ajustar el color del LED RGB variando el ciclo de trabajo (duty cycle) de los canales PWM asociados a los LEDs rojo, verde y azul.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Características
 
-This example shows how to use the LEDC to generate a PWM signal using the `LOW SPEED` mode.
-To use `HIGH SPEED` mode check if the selected SoC supports this mode.
+- Control de un LED RGB mediante PWM.
+- Configuración de la frecuencia y resolución del PWM.
+- Transición suave de colores mediante ajuste del duty cycle.
+- Uso del controlador LEDC del ESP32 para generar señales PWM.
 
-## How to use example
+## Requisitos
 
-### Hardware Required
+### Hardware
+- ESP32 (cualquier placa compatible).
+- LED RGB de ánodo común o cátodo común.
+- Resistencias limitadoras de corriente (si es necesario).
+- Conexiones GPIO según la configuración del código.
 
-* A development board with any Espressif SoC (e.g., ESP32-DevKitC, ESP-WROVER-KIT, etc.)
-* A USB cable for power supply and programming
+### Software
+- ESP-IDF (Espressif IoT Development Framework).
+- Herramientas de compilación y flasheo para ESP32.
 
-Connect the GPIO to an oscilloscope to see the generated signal:
+## Configuración
 
-|ledc channel| GPIO  |
-|:----------:|:-----:|
-| Channel 0  | GPIO5 |
+### Conexiones
+- **LED Rojo**: Conectado al GPIO 21.
+- **LED Verde**: Conectado al GPIO 19.
+- **LED Azul**: Conectado al GPIO 18.
+- **GND**: Conectado al cátodo del LED RGB (si es de cátodo común) o al ánodo, **VCC** (si es de ánodo común).
 
-### Configure the project
+### Configuración del Código
+- El código está configurado para usar el temporizador `LEDC_TIMER_0` y los canales `LEDC_CHANNEL_0`, `LEDC_CHANNEL_1` y `LEDC_CHANNEL_2` para los LEDs rojo, verde y azul, respectivamente.
+- La frecuencia PWM está configurada a 4 kHz con una resolución de 13 bits.
 
-The example uses fixed PWM frequency of 4 kHz, duty cycle in 50%, and output GPIO pin. To change them, adjust `LEDC_FREQUENCY`, `LEDC_DUTY`, `LEDC_OUTPUT_IO` macros at the top of ledc_basic_example_main.c.
+## Uso
 
-Depending on the selected `LEDC_FREQUENCY`, you will need to change the `LEDC_DUTY_RES`.
+1. Clona este repositorio en tu entorno de desarrollo.
+   ```bash
+   git clone https://github.com/bavendanom/sistemas_en_tiempo_real
+   cd led_RGB
+## Estructura el proyecto
 
-To dynamically set the duty and frequency, you can use the following functions:
-
-To set the frequency to 2.5 kHZ i.e:
-
-```c
-ledc_set_freq(LEDC_MODE, LEDC_TIMER, 2500);
-```
-
-Now set the duty to 100% i.e:
-
-```c
-ledc_set_duty(LEDC_MODE, LEDC_CHANNEL, 8192);
-ledc_update_duty(LEDC_MODE, LEDC_CHANNEL);
-```
-
-To change the duty cycle you need to calculate the duty range according to the duty resolution.
-
-If duty resolution is 13 bits:
-
-Duty range: `0 to (2 ** 13) = 8191` where 0 is 0% and 8192 is 100%.
-
-### Build and Flash
-
-* [ESP-IDF Getting Started Guide](https://idf.espressif.com/)
-
-Build the project and flash it to the board, then run monitor tool to view serial output:
 
 ```bash
-idf.py -p PORT flash monitor
+├── main/
+│   ├── CMakeLists.txt                     # Definición cómo se deben compilar y enlazar los archivos de código fuente
+│   ├── ledc_basic_example_main.c          # Código principal
+│   ├──led_RGB_LIBRARY
+│   │   ├──include
+│   │   │   ├── led_RGB_library.h          # Definición de la librería LED RGB
+│   │   ├──src
+│   │   │   ├── led_RGB_library.c          # Implementación de la librería LED RGB
+│   ├── CMakeLists.txt                     # Configuración de CMake
+├── build/                                 # Carpeta generada tras la compilación
+├── sdkconfig                              # Archivo de configuración de ESP-IDF
+└── README.md                              # Documentación del proyecto
+
 ```
+## Conexion a la placa
 
-(To exit the serial monitor, type ``Ctrl-]``.)
+![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/led_RGB/conexion_LED_RGB?raw=true)
 
-See the Getting Started Guide for full steps to configure and use ESP-IDF to build projects.
 
-## Example Output
+## Authors
 
-Running this example, you will see the PWM signal with a duty cycle of 50%.
+**Brayan Avendaño Mesa**
+- [@bavendanom](https://www.github.com/bavendanom)
 
-![PWM](image/ledc_pwm_signal.png)
 
-## Troubleshooting
-
-* Duty Resolution
-
-    * If you get the following error log `ledc: requested frequency and duty resolution can not be achieved, try reducing freq_hz or duty_resolution.` you need to change the `LEDC_DUTY_RES` to a lower resolution and change the range of the duty.
-
-* Programming fail
-
-    * Hardware connection is not correct: run `idf.py -p PORT monitor`, and reboot your board to see if there are any output logs.
-    * The baud rate for downloading is too high: lower your baud rate in the `menuconfig` menu, and try again.
-
-For any technical queries, please open an [issue](https://github.com/espressif/esp-idf/issues) on GitHub. We will get back to you soon.
