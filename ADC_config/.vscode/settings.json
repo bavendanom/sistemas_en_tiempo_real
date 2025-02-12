@@ -11,5 +11,6 @@
         "stdio.h": "c",
         "led_rgb_library.h": "c",
         "ledc.h": "c"
-    }
+    },
+    "idf.portWin": "COM5"
 }

@@ -7,9 +7,11 @@
 
 // Estructura para representar un LED
 typedef struct {
-    int gpio_num;                   // Número de pin GPIO conectado al LED
-    ledc_channel_t channel;         // Canal del controlador LED
-    uint32_t duty;                  // Ciclo de trabajo inicial (duty)
+    int gpio_num;                    // Número de pin GPIO conectado al LED
+    ledc_timer_t timmer;             // Timmer del controlador LED
+    ledc_channel_t channel;          // Canal del controlador LED
+    uint32_t duty;                   // Ciclo de trabajo inicial (duty)
+    unsigned int flag_output_invert; // /*!< Enable (1) or disable (0) gpio output invert */
 } led;
 
 // Estructura para representar un LED RGB
@@ -26,7 +28,7 @@ typedef struct {
  * 
  * @return esp_err_t ESP_OK si se inicializó correctamente, otro valor en caso de error.
  */
-esp_err_t ledc_init_timer(void);
+esp_err_t ledc_init_timer(led l);
 
 /**
  * @brief Configura el canal del controlador LEDC para un LED.
@@ -52,7 +54,7 @@ esp_err_t ledc_initialize_rgb(led_RGB rgb);
  * @param duty_porcent Porcentaje de duty (0-100%).
  * @return uint32_t Valor escalado para el controlador LEDC.
  */
-uint32_t set_duty_porcent(uint32_t duty_porcent);
+static uint32_t set_duty_porcent(uint32_t duty_porcent);
 
 /**
  * @brief Configura el duty cycle para un LED específico.
@@ -64,7 +66,7 @@ uint32_t set_duty_porcent(uint32_t duty_porcent);
  *      - ESP_ERR_INVALID_ARG: Si el duty cycle está fuera del rango permitido.
  *      - Otros códigos de error definidos por LEDC en caso de fallos en la configuración.
  */
-esp_err_t set_led_color(led l, uint32_t duty);
+static esp_err_t set_led_color(led l, uint32_t duty);
 
 /**
  * @brief Establece el color del LED RGB mediante los ciclos de trabajo (duty).

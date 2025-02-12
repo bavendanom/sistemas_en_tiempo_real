@@ -1,37 +1,88 @@
-| Supported Targets | ESP32 | ESP32-C2 | ESP32-C3 | ESP32-C6 | ESP32-H2 | ESP32-P4 | ESP32-S2 | ESP32-S3 |
-| ----------------- | ----- | -------- | -------- | -------- | -------- | -------- | -------- | -------- |
+# Control de LED RGB con ADC y GPIO en ESP32
 
-# ADC Single Read Example
+Este proyecto demuestra cómo controlar un LED RGB utilizando un microcontrolador ESP32. La intensidad del color del LED se cambia mediante la lectura de valores de un ADC (Convertidor Analógico-Digital) y la interacción con botones conectados a GPIOs permite el cambio de color. El proyecto utiliza el controlador LEDC (LED Control) para generar señales PWM y controlar el brillo de cada color del LED RGB.
 
-(See the README.md file in the upper level 'examples' directory for more information about examples.)
+## Características principales
 
-This example demonstrates the following:
+- Control de un LED RGB mediante PWM.
+- Lectura de valores analógicos utilizando el ADC del ESP32.
+- Cambio de color del LED mediante interrupciones de GPIO.
+- Calibración del ADC para obtener lecturas precisas de voltaje.
 
-- How to obtain a oneshot ADC reading from a GPIO pin using the ADC oneshot mode driver
-- How to use the ADC Calibration functions to obtain a calibrated result (in mV)
+## Hardware requerido
 
-## How to use example
+- Placa de desarrollo ESP32.
+- LED RGB de cátodo común o ánodo común.
+- Resistencias adecuadas para los LEDs (generalmente 220Ω).
+- Potenciómetros o sensores analógicos para el ADC.
+- Botones para la interacción con GPIOs.
 
-### Hardware Required
+## Configuración del hardware
 
-* A development board with ESP SoC
-* A USB cable for power supply and programming
+1. **LED RGB**:
+   - Conecta el pin del LED rojo al GPIO 21.
+   - Conecta el pin del LED verde al GPIO 19.
+   - Conecta el pin del LED azul al GPIO 18.
+   - Conecta el cátodo común (o ánodo común) del LED RGB a GND (o VCC, dependiendo del tipo de LED).
 
-In this example, you need to connect a voltage source (e.g. a DC power supply) to the GPIO pins specified in `oneshot_read_main.c` (see the macros defined on the top of the source file). Feel free to modify the pin setting.
+2. **ADC**:
+   - Conecta un potenciómetro o sensor analógico al canal 4 (GPIO 32) del ADC1.
+   - Conecta otro potenciómetro o sensor analógico al canal 5 (GPIO 33) del ADC1.
 
-### Build and Flash
+3. **Botones**:
+   - Conecta un botón entre el GPIO 0 y GND. (Se usa el integrado en la placa de desarrollo)
+   - Conecta otro botón entre el GPIO 5 y GND.
 
-Build the project and flash it to the board, then run monitor tool to view serial output:
+## Configuración del software
+
+### Dependencias
+
+- ESP-IDF (Espressif IoT Development Framework).
+- Librerías de ADC y LEDC de ESP-IDF.
+
+### Estructura del proyecto
+
+- `oneshot_read_main.c`: Contiene la lógica principal del programa, incluyendo la inicialización del ADC, la configuración de los GPIOs, y el control del LED RGB.
+- `led_RGB_library.h`: Define las estructuras y funciones para controlar el LED RGB.
+- `led_RGB_library.c`: Implementa las funciones para inicializar y controlar el LED RGB mediante PWM.
+
+### Compilación y carga
+
+1. Clona este repositorio en tu entorno de desarrollo.
+```bash
+   git clone https://github.com/bavendanom/sistemas_en_tiempo_real
+   cd ADC_config
+   
+```
+2. Abre el proyecto en un entorno de desarrollo compatible con ESP-IDF (como VS Code con la extensión ESP-IDF).
+3. Configura el proyecto para tu placa ESP32.
+4. Compila y carga el firmware en la placa ESP32.
+
+
+
+## Estructura el proyecto
+
+
+```bash
+├── main/
+│   ├── CMakeLists.txt                     # Definición cómo se deben compilar y enlazar los archivos de código fuente
+│   ├── oneshot_read_main.c                # Código principal
+│   ├──led_RGB_LIBRARY
+│   │   ├──include
+│   │   │   ├── led_RGB_library.h          # Definición de la librería LED RGB
+│   │   ├──src
+│   │   │   ├── led_RGB_library.c          # Implementación de la librería LED RGB
+│   ├── CMakeLists.txt                     # Configuración de CMake
+├── build/                                 # Carpeta generada tras la compilación
+├── sdkconfig                              # Archivo de configuración de ESP-IDF
+└── README.md                              # Documentación del proyecto
 
 ```
-idf.py -p PORT flash monitor
-```
+## Conexion a la placa
 
-(To exit the serial monitor, type ``Ctrl-]``.)
+![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/led_RGB/conexion_LED_RGB?raw=true)
 
-See the Getting Started Guide for full steps to configure and use ESP-IDF to build projects.
-
-## Example Output
+## Ejemplo de salida
 
 Running this example, you will see the following log output on the serial monitor:
 
@@ -53,10 +104,9 @@ I (5324) ADC_ONESHOT: ADC2 Channel[0] Cali Voltage: 495 mV
 ...
 ```
 
-## Troubleshooting
+## Authors
 
-If following warning is printed out, it means the calibration required eFuse bits are not burnt correctly on your board. The calibration will be skipped. Only raw data will be printed out.
-```
-W (300) ADC_ONESHOT: eFuse not burnt, skip calibration
-I (1310) ADC_ONESHOT: ADC1 Channel[2] Raw Data: 0
-```
+**Brayan Avendaño Mesa**
+- [@bavendanom](https://www.github.com/bavendanom)
+
+
