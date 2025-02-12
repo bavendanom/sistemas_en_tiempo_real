@@ -40,12 +40,6 @@ Este proyecto demuestra cómo controlar un LED RGB utilizando un microcontrolado
 - ESP-IDF (Espressif IoT Development Framework).
 - Librerías de ADC y LEDC de ESP-IDF.
 
-### Estructura del proyecto
-
-- `oneshot_read_main.c`: Contiene la lógica principal del programa, incluyendo la inicialización del ADC, la configuración de los GPIOs, y el control del LED RGB.
-- `led_RGB_library.h`: Define las estructuras y funciones para controlar el LED RGB.
-- `led_RGB_library.c`: Implementa las funciones para inicializar y controlar el LED RGB mediante PWM.
-
 ### Compilación y carga
 
 1. Clona este repositorio en tu entorno de desarrollo.
