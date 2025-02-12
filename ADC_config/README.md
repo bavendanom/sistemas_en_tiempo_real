@@ -84,7 +84,7 @@ Este proyecto demuestra cómo controlar un LED RGB utilizando un microcontrolado
 
 ## Ejemplo de salida
 
-Running this example, you will see the following log output on the serial monitor:
+Ejecutando este ejemplo, verá la siguiente salida de registro en el monitor serie:
 
 ```
 I (304) ADC_ONESHOT: calibration scheme version is Curve Fitting
