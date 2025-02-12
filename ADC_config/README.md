@@ -80,7 +80,7 @@ Este proyecto demuestra cómo controlar un LED RGB utilizando un microcontrolado
 ```
 ## Conexion a la placa
 
-![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/led_RGB/conexion_LED_RGB?raw=true)
+![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/ADC_config/conexion_pot_rgb.png?raw=true)
 
 ## Ejemplo de salida
 
