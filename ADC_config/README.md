@@ -40,12 +40,6 @@ Este proyecto demuestra cómo controlar un LED RGB utilizando un microcontrolado
 - ESP-IDF (Espressif IoT Development Framework).
 - Librerías de ADC y LEDC de ESP-IDF.
 
-### Estructura del proyecto
-
-- `oneshot_read_main.c`: Contiene la lógica principal del programa, incluyendo la inicialización del ADC, la configuración de los GPIOs, y el control del LED RGB.
-- `led_RGB_library.h`: Define las estructuras y funciones para controlar el LED RGB.
-- `led_RGB_library.c`: Implementa las funciones para inicializar y controlar el LED RGB mediante PWM.
-
 ### Compilación y carga
 
 1. Clona este repositorio en tu entorno de desarrollo.
@@ -80,11 +74,11 @@ Este proyecto demuestra cómo controlar un LED RGB utilizando un microcontrolado
 ```
 ## Conexion a la placa
 
-![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/led_RGB/conexion_LED_RGB?raw=true)
+![ESP32](https://github.com/bavendanom/sistemas_en_tiempo_real/blob/main/ADC_config/conexion_pot_rgb.png?raw=true)
 
 ## Ejemplo de salida
 
-Running this example, you will see the following log output on the serial monitor:
+Ejecutando este ejemplo, verá la siguiente salida de registro en el monitor serie:
 
 ```
 I (304) ADC_ONESHOT: calibration scheme version is Curve Fitting
