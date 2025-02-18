@@ -72,7 +72,7 @@ adc_config_t adc1_config_ch4 = {
 
 // Estructura para configurar el ADC 2 en el canal 0
 adc_config_t adc2_config_ch0 = {
-    .channel = ADC_CHANNEL_0,
+    .channel = ADC_CHANNEL_5,
     .attenuation = ADC_ATTEN_DB_12,
     .cali_handle = NULL,
     .do_calibration = false
@@ -159,31 +159,45 @@ void NTC_task(void *pvParameter){
     float fixed_resistor = 100.0; // Resistencia fija en ohmios 
     float reference_voltage = 3.3; // Voltaje de referencia 
     
-    config_adc_unit(&adc2_config_ch0, ADC_UNIT_2);
-
+    config_adc_unit(&adc2_config_ch0, ADC_UNIT_1);
     rgb_init(rgb_ntc);
 
-    int MIN_RED = 30, MAX_RED = 50;
-    int MIN_GREEN = 20, MAX_GREEN = 40;
-    int MIN_BLUE = 10, MAX_BLUE = 30;
+
+    float MIN_RED = 30, MAX_RED = 50;
+    float MIN_GREEN = 20, MAX_GREEN = 40;
+    float MIN_BLUE = 10, MAX_BLUE = 30;
     
     while(1) {
+
+
+        //read_adc_raw(&adc1_config_ch4, &adc_raw[0][2]);
         // Leer ADC
-        read_adc_raw(&adc2_config_ch0, &adc_raw[1][0]);
-        read_voltage(&adc2_config_ch0, adc_raw[1][0], &voltage[1][0]);
+        read_adc_raw(&adc2_config_ch0, &adc_raw[0][2]);
+        read_voltage(&adc2_config_ch0, adc_raw[0][2], &voltage[0][2]);
+
+        /* // Log para verificar el valor del ADC
+        ESP_LOGI("NTC_task", "ADC Raw Value: %d", adc_raw[0][2]);
+        ESP_LOGI("NTC_task", "Voltage: %d mV", voltage[0][2]); */
 
         // Convertir el voltaje medido de milivoltios a voltios
-        float voltage_out = voltage[1][0] / 1000.0; // Convertir de mV a V
+        float voltage_out = voltage[0][2] / 1000.0; // Convertir de mV a V
         
         // Calcular resistencia NTC y temperatura
         float R_NTC = res_ntc(voltage_out, fixed_resistor, reference_voltage); 
         float temp_Celsius = tem_cel(R_NTC);
 
-
-        xQueueReset(temp_queue);  
+        
+        //xQueueReset(temp_queue);  
         xQueueSend(temp_queue, &temp_Celsius , portMAX_DELAY);
 
-        xQueueReceive(min_red_queue , &MIN_RED, pdMS_TO_TICKS(100));
+        ;
+        if (xQueueReceive(min_red_queue , &MIN_RED, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "MIN_RED recivido: %.2f°C\n", MIN_RED);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            ESP_LOGW("CMD_HANDLER", "No se pudo recibir MIN_RED");
+        }
         xQueueReceive(max_red_queue , &MAX_RED, pdMS_TO_TICKS(100));
         xQueueReceive(min_blue_queue , &MIN_BLUE, pdMS_TO_TICKS(100));
         xQueueReceive(max_blue_queue , &MAX_BLUE, pdMS_TO_TICKS(100));
@@ -311,7 +325,7 @@ void app_main(void)
 
     init_server();
     // Crear la tarea para leer ADC y calculos para la NTC
-    xTaskCreate(NTC_task, "NTC_task", 4096*2, NULL, 5, NULL);
+    xTaskCreate(NTC_task, "NTC_task", 4096*2, NULL, 4, NULL);
     xTaskCreate(button_task, "button_task", 4096, NULL, configMAX_PRIORITIES -  3, NULL);
     xTaskCreate(rx_task, "rx_task", 4096, NULL, 5, NULL);
     xTaskCreate(task_process_uart, "task_process_uart", 4096, NULL, 5, NULL);

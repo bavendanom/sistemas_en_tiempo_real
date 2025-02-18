@@ -85,6 +85,7 @@
             align-items: center;
             justify-content: center;
             margin-top: 10px;
+            flex-direction: column;  /* Asegura que los elementos hijos se muestren en bloque */
         }
         .temperature-section img {
             width: 100px; /* Ajusta el tamaño si es necesario */
@@ -156,7 +157,7 @@
                     <input type="number" id="red-min" placeholder="Min">
                     <input type="number" id="red-max" placeholder="Max">
                 </div>
-                <button class="red-btn" onclick="setRGB('red')">Set</button>
+                <button class="red-btn" onclick="setRed()">Set</button>
             </div>
             <div class="rgb-control">
                 <span class="rgb-label">RGB_Green</span>
@@ -164,7 +165,7 @@
                     <input type="number" id="green-min" placeholder="Min">
                     <input type="number" id="green-max" placeholder="Max">
                 </div>
-                <button class="green-btn" onclick="setRGB('green')">Set</button>
+                <button class="green-btn" onclick="setGreen()">Set</button>
             </div>
             <div class="rgb-control">
                 <span class="rgb-label">RGB_Blue </span>
@@ -172,22 +173,21 @@
                     <input type="number" id="blue-min" placeholder="Min">
                     <input type="number" id="blue-max" placeholder="Max">
                 </div>
-                <button class="blue-btn" onclick="setRGB('blue')">Set</button>
+                <button class="blue-btn" onclick="setBlue()">Set</button>
             </div>
         </div>
         <div class="temperature-section section">
             <h2>Temperature Display</h2>
             <!-- <img src="led_icon.png" alt="LED Icon"> -->
             <div class="temperature-box" id="temperature-display">
-                Temperature: <span id="temp-value">--</span>°C
+                
             </div>
-            <!-- <button onclick="getTemperature()">Get</button> -->
-            <button onclick="turnOnLED()">Turn On LED</button>
-            <button onclick="turnOffLED()">Turn OFF LED</button>
+            <button onclick="getTemperature()">Get</button> 
+            <button onclick="Toogle()">Toogle</button>
         </div>
         <div class="print-temperature-section section">
             <h2>Print Temperature</h2>
-            <div class="print-box" id="print-output">
+            <div class="print-box" id="temperature-output">
                 <!-- Aquí se imprimirá la información de temperatura -->
             </div>
             <div class="button-group">
@@ -198,7 +198,7 @@
         <div class="print-adc-section section">
             <h2>Print ADC Pot</h2>
             <div class="print-box" id="adc-value">
-                ADC Value: --
+                <!-- Aquí se imprimirá la información del ADC-->
             </div>
             <div class="button-group">
                 <button onclick="turnOnADC()">ON</button>

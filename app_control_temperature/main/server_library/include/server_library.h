@@ -10,10 +10,13 @@
 #include "esp_mac.h"
 #include "esp_http_server.h"
 #include "driver/gpio.h"
+#include "cJSON.h"  // Añadir esta línea para incluir la librería cJSON
+
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
 
+#define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define LED_GPIO GPIO_NUM_2  // Define el pin GPIO donde está conectado el LED
 
 // Definir la cola 

@@ -69,7 +69,7 @@ void handle_max_red(char *value) {
     char mensaje[50];
 
     // Enviar el nuevo valor a la cola
-    if (xQueueSend(min_red_queue, &min_red, portMAX_DELAY) == pdTRUE) {
+    if (xQueueSend(max_red_queue, &max_red, portMAX_DELAY) == pdTRUE) {
         snprintf(mensaje, sizeof(mensaje), "MAX_RED  configurado en %i°C\n", max_red);
         sendData("CMD_HANDLER", mensaje);
     } else {
@@ -95,7 +95,7 @@ void handle_max_green(char *value) {
     char mensaje[50];
     
     // Enviar el nuevo valor a la cola
-    if (xQueueSend(min_green_queue, &min_green, portMAX_DELAY) == pdTRUE) {
+    if (xQueueSend(max_green_queue, &max_green, portMAX_DELAY) == pdTRUE) {
         snprintf(mensaje, sizeof(mensaje), "MAX_GREEN configurado en %i°C\n", max_green);
         sendData("CMD_HANDLER", mensaje);
     } else {
@@ -121,7 +121,7 @@ void handle_max_blue(char *value) {
     char mensaje[50];
     
     // Enviar el nuevo valor a la cola
-    if (xQueueSend(min_blue_queue, &min_blue, portMAX_DELAY) == pdTRUE) {
+    if (xQueueSend(max_blue_queue, &max_blue, portMAX_DELAY) == pdTRUE) {
         snprintf(mensaje, sizeof(mensaje), "MAX_BLUE configurado en %i°C\n", max_blue);
         sendData("CMD_HANDLER", mensaje);
     } else {
