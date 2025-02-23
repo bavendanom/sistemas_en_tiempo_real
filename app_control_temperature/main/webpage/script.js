@@ -29,6 +29,8 @@ function setHotspot() {
     .catch(error => console.error("Error:", error));
 }
 
+
+//MARK: SET LED RGB RED MAX - MIN
 function setRed() {
     let min = document.getElementById('red-min').value;
     let max = document.getElementById('red-max').value;
@@ -56,12 +58,13 @@ function setRed() {
     .catch(error => console.error("Error:", error));
 }
 
+//MARK: SET LED RGB GREEN MAX - MIN
 function setGreen() {
-    let min = document.getElementById('red-min').value;
-    let max = document.getElementById('red-max').value;
+    let min = document.getElementById('green-min').value;
+    let max = document.getElementById('green-max').value;
 
     if (min === "" || max === "") {
-        alert("Enter Min and Max values for RED");
+        alert("Enter Min and Max values for GREEN");
         return;
     }
 
@@ -83,12 +86,13 @@ function setGreen() {
     .catch(error => console.error("Error:", error));
 }
 
+//MARK: SET LED RGB BLUE MAX - MIN
 function setBlue() {
-    let min = document.getElementById('red-min').value;
-    let max = document.getElementById('red-max').value;
+    let min = document.getElementById('blue-min').value;
+    let max = document.getElementById('blue-max').value;
 
     if (min === "" || max === "") {
-        alert("Enter Min and Max values for RED");
+        alert("Enter Min and Max values for BLUE");
         return;
     }
 
@@ -111,10 +115,9 @@ function setBlue() {
 }
 
 
-
-
+//MARK: GET TEMPERATURE last reading
 function getTemperature() {
-    fetch("/get_temperature")
+    fetch("/turn_on_temp")
     .then(response => response.json())
     .then(data => {
         document.getElementById("temperature-display").innerText = `Temperature: ${data.Temperature} °C`;  // Usar la clave correcta del JSON
@@ -123,7 +126,7 @@ function getTemperature() {
 }
 
 
-// Nueva función para encender el LED
+//MARK: TOOGLE LED D2
 function Toogle() {
     fetch("/toogle_led", {
         method: "POST",  // Cambiar a POST
@@ -134,7 +137,21 @@ function Toogle() {
     .catch(error => console.error("Error:", error));
 }
 
+//MARK: CHANGE COLOR ADC
+function changeColor() {
+    fetch("/change_color", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "change" })
+    })
+    .then(response => response.text())
+    .then(data => alert(`Response: ${data}`))
+    .catch(error => console.error("Error:", error));
+}
 
+
+
+//MARK: PRINT VALUE TEMPERATURE 
 let tempInterval;
 const maxEntries = 3;
 
@@ -172,7 +189,7 @@ function turnOffTemp() {
 }
 
 
-// 🔹 Encender/Apagar Print ADC Pot
+//MARK: PRINT VALUE ADC 
 let adcInterval;
 
 function turnOnADC() {

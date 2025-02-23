@@ -17,11 +17,11 @@
 
 
 
-#define EXAMPLE_STA_SSID       "Marcela 2.4"
-#define EXAMPLE_STA_PASS       "35490562M"
+#define EXAMPLE_STA_SSID       "Kraken_PLUS"//"Marcela 2.4"
+#define EXAMPLE_STA_PASS       "Rhl418yga"//"35490562M"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  5
 //sta
-#define EXAMPLE_AP_SSID        "100 de cilantro "
+#define EXAMPLE_AP_SSID        "100 de cilantro"
 #define EXAMPLE_AP_PASS        "123456789"
 #define EXAMPLE_ESP_WIFI_CHANNEL   1//CONFIG_ESP_WIFI_CHANNEL
 //#define EXAMPLE_MAX_STA_CONN       1//CONFIG_ESP_MAX_STA_CONN

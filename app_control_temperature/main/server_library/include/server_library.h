@@ -10,7 +10,7 @@
 #include "esp_mac.h"
 #include "esp_http_server.h"
 #include "driver/gpio.h"
-#include "cJSON.h"  // Añadir esta línea para incluir la librería cJSON
+#include "cJSON.h" 
 
 
 #include "lwip/err.h"
@@ -21,6 +21,7 @@
 
 // Definir la cola 
 extern QueueHandle_t read_pot;
+extern QueueHandle_t change_current_color;
 
 void start_webserver(void);
 void comandos_init_server(void);

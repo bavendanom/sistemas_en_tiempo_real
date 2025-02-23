@@ -2,26 +2,48 @@
 #include "command_library.h"
 #include "uart_library.h"
 
+#define HTTPD_MAX_URI_HANDLERS 16
+
 static const char *TAG = "wifi station";
 
 static uint8_t s_led_state = 0;
 
 QueueHandle_t read_pot;
+QueueHandle_t change_current_color;
 
-/* // Función para manejar la solicitud de encender el LED
-esp_err_t led_on_handler(httpd_req_t *req) {
-    gpio_set_level(LED_GPIO, 1);  // Enciende el LED
-    httpd_resp_send(req, "LED On", HTTPD_RESP_USE_STRLEN);
+esp_err_t post_handler(httpd_req_t *req) {
+    // Reservar memoria para almacenar los datos recibidos
+    char *buf = malloc(req->content_len + 1);
+    if (!buf) {
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
+    // Leer los datos del cuerpo de la solicitud
+    int ret = httpd_req_recv(req, buf, req->content_len);
+    if (ret <= 0) {
+        free(buf);
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+            httpd_resp_send_408(req);
+        }
+        return ESP_FAIL;
+    }
+
+    // Asegurar que la cadena esté terminada correctamente
+    buf[req->content_len] = '\0';
+
+    // Aquí procesas los datos recibidos en `buf`
+    printf("Datos recibidos: %s\n", buf);
+
+    // Enviar respuesta al cliente
+    httpd_resp_send(req, "Datos recibidos correctamente", HTTPD_RESP_USE_STRLEN);
+
+    // Liberar la memoria asignada
+    free(buf);
     return ESP_OK;
 }
 
-// Función para manejar la solicitud de apagar el LED
-esp_err_t led_off_handler(httpd_req_t *req) {
-    gpio_set_level(LED_GPIO, 0);  // Apaga el LED
-    httpd_resp_send(req, "LED OFF", HTTPD_RESP_USE_STRLEN);
-    return ESP_OK;
-} */
-
+//MARK: HANDLER TOOGLE LED
 static esp_err_t http_server_toogle_led_handler(httpd_req_t *req)
 {
 	//ESP_LOGI(TAG, "/toogle_led.json requested");
@@ -31,11 +53,13 @@ static esp_err_t http_server_toogle_led_handler(httpd_req_t *req)
 
 	// Cerrar la conexion
     httpd_resp_set_hdr(req, "Connection", "close");
-    httpd_resp_send(req, NULL, 0);
+    
+    httpd_resp_send(req, "Cambio de estado", HTTPD_RESP_USE_STRLEN);
+    
 	return ESP_OK;
 }
 
-
+//MARK: HANDLER VALUES ADC
 // Función para manejar la solicitud de obtener el valor de ADC
 esp_err_t adc_handler(httpd_req_t *req) {
     int32_t adc_value;
@@ -48,8 +72,11 @@ esp_err_t adc_handler(httpd_req_t *req) {
         httpd_resp_send_500(req);
     }
     return ESP_OK;
+    // Cerrar la conexión
+    httpd_resp_set_hdr(req, "Connection", "close");
 }
 
+//MARK: HANDLER TEMPERATURE ADC
 // Función para manejar la solicitud de obtener el valor de ADC temperatura
 esp_err_t adc_tem_handler(httpd_req_t *req) {
     float temp_Celsius;
@@ -62,26 +89,22 @@ esp_err_t adc_tem_handler(httpd_req_t *req) {
         httpd_resp_send_500(req);
     }
     return ESP_OK;
+    // Cerrar la conexión
+    httpd_resp_set_hdr(req, "Connection", "close");
 }
 
-// Función para manejar la solicitud de obtener el valor de ADC temperatura de la ultima lectura
-esp_err_t adc_tem_one_read_handler(httpd_req_t *req) {
-    float temp_Celsius;
-    if (xQueueReceive(temp_queue, &temp_Celsius, pdMS_TO_TICKS(1000)) == pdPASS) {
-        char resp_str[64];
-        snprintf(resp_str, sizeof(resp_str), "{\"Temperature\": %.2f}", temp_Celsius);
-        httpd_resp_set_type(req, "application/json");
-        httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
-    } else {
-        httpd_resp_send_500(req);
-    }
-    return ESP_OK;
-}
-
-
+//MARK: HANDLER SET COLORS RGB 
 esp_err_t set_rgb_handler(httpd_req_t *req) {
     char buf[100];
     int ret, remaining = req->content_len;
+
+
+    if (remaining >= sizeof(buf)) {
+        ESP_LOGE(TAG, "Error: JSON demasiado grande");
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
 
     while (remaining > 0) {
         if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
@@ -97,6 +120,7 @@ esp_err_t set_rgb_handler(httpd_req_t *req) {
 
     cJSON *json = cJSON_Parse(buf);
     if (json == NULL) {
+        ESP_LOGE(TAG, "Error al parsear JSON");
         httpd_resp_send_500(req);
         return ESP_FAIL;
     }
@@ -108,30 +132,79 @@ esp_err_t set_rgb_handler(httpd_req_t *req) {
     if (cJSON_IsString(color) && cJSON_IsNumber(min) && cJSON_IsNumber(max)) {
         ESP_LOGI(TAG, "Received RGB settings - Color: %s, Min: %.2f, Max: %.2f", color->valuestring, min->valuedouble, max->valuedouble);
         
+        //MARK:RED
+        // ---------------- RED ---------------//
         if (strcmp(color->valuestring, "red") == 0) {
             float min_red = min->valuedouble;
             float max_red = max->valuedouble;
             ESP_LOGI(TAG,"se agrego a la cola");
             char mensaje[50];
 
-        // Enviar el nuevo valor a la cola
+        // Enviar el nuevo valor a la cola de MIN
         if (xQueueSend(min_red_queue, &min_red, portMAX_DELAY) == pdTRUE) {
-            snprintf(mensaje, sizeof(mensaje), "MIN_red  configurado en %f°C\n", min_red);
+            snprintf(mensaje, sizeof(mensaje), "MIN_RED  configurado en %f°C\n", min_red);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MIN_RED a la cola");
+        }
+
+        // Enviar el nuevo valor a la cola de MAX
+        if (xQueueSend(max_red_queue, &max_red, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MAX_RED  configurado en %f°C\n", max_red);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MAX_RED  a la cola");
+        }
+        //MARK:GREEN
+        // ---------------- GREEN ---------------//
+        } else if (strcmp(color->valuestring, "green") == 0) {
+            float min_green = min->valuedouble;
+            float max_green = max->valuedouble;
+            ESP_LOGI(TAG,"se agrego a la cola");
+            char mensaje[50];
+
+
+            // Enviar el nuevo valor a la cola de MIN
+        if (xQueueSend(min_green_queue, &min_green, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MIN_GREEN  configurado en %f°C\n", min_green);
             sendData("CMD_HANDLER", mensaje);
         } else {
             sendData("CMD_HANDLER", "Error al enviar MIN_GREEN a la cola");
         }
-            xQueueSend(max_red_queue, &max_red, portMAX_DELAY);
-        } else if (strcmp(color->valuestring, "green") == 0) {
-            float min_green = min->valuedouble;
-            float max_green = max->valuedouble;
-            xQueueSend(min_green_queue, &min_green, portMAX_DELAY);
-            xQueueSend(max_green_queue, &max_green, portMAX_DELAY);
+
+        // Enviar el nuevo valor a la cola de MAX
+        if (xQueueSend(max_green_queue, &max_green, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MAX_GREEN  configurado en %f°C\n", max_green);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MAX_GREEN  a la cola");
+        }
+
+        //MARK:BLUE
+        // ---------------- BLUE ---------------//
         } else if (strcmp(color->valuestring, "blue") == 0) {
             float min_blue = min->valuedouble;
             float max_blue = max->valuedouble;
-            xQueueSend(min_blue_queue, &min_blue, portMAX_DELAY);
-            xQueueSend(max_blue_queue, &max_blue, portMAX_DELAY);
+            ESP_LOGI(TAG,"se agrego a la cola");
+            char mensaje[50];
+
+
+            // Enviar el nuevo valor a la cola de MIN
+        if (xQueueSend(min_blue_queue, &min_blue, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MIN_BLUE  configurado en %f°C\n", min_blue);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MIN_BLUE a la cola");
+        }
+
+        // Enviar el nuevo valor a la cola de MAX
+        if (xQueueSend(max_blue_queue, &max_blue, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MAX_BLUE  configurado en %f°C\n", max_blue);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MAX_BLUE  a la cola");
+        }
+
         } else {
             httpd_resp_send_500(req);
             return ESP_FAIL;
@@ -146,9 +219,25 @@ esp_err_t set_rgb_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
+//MARK: HANDLER CHANGE COLOR READ ADC
+static esp_err_t change_color_handler(httpd_req_t *req) {
+   int current_color = 1;
+   char mensaje[50];
 
+    if (xQueueSend(change_current_color, &current_color, portMAX_DELAY) == pdTRUE) {
+        snprintf(mensaje, sizeof(mensaje), "COLOR CHANGED %i\n", current_color);
+        sendData("WED_SERVER_HANDLER", mensaje);
+    } else {
+        sendData("CMD_HANDLER", "Error al enviar MIN_BLUE a la cola");
+    }
 
-// Añadir estos manejadores para servir los archivos
+    // Cerrar la conexión
+    httpd_resp_send(req, "COLOR CHANGE", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_set_hdr(req, "Connection", "close");
+    return ESP_OK;
+}
+
+//MARK: HANDLER FOR FILE(HTML, CSS, JS)
 esp_err_t index_handler(httpd_req_t *req) {
     extern const unsigned char index_html_start[] asm("_binary_index_html_start");
     extern const unsigned char index_html_end[] asm("_binary_index_html_end");
@@ -176,7 +265,7 @@ esp_err_t script_handler(httpd_req_t *req) {
 }
 
 
-
+//MARK: URI GET VALUE ADC
 // Definir la URI para la solicitud de obtener el valor de ADC
 httpd_uri_t uri_get_adc = {
     .uri = "/get_adc",
@@ -185,6 +274,7 @@ httpd_uri_t uri_get_adc = {
     .user_ctx = NULL
 };
 
+//MARK: URI TEMPERATURE ADC
 // Definir la URI para la solicitud de obtener el valor de Temperature
 httpd_uri_t uri_get_tem_adc = {
     .uri = "/turn_on_temp",
@@ -193,14 +283,7 @@ httpd_uri_t uri_get_tem_adc = {
     .user_ctx = NULL
 };
 
-// Definir la URI para la solicitud de obtener el valor de Temperature de la ultima lectura
-httpd_uri_t uri_get_tem_one_read = {
-    .uri = "/get_temperature",
-    .method = HTTP_GET,
-    .handler = adc_tem_one_read_handler,
-    .user_ctx = NULL
-};
-
+//MARK: URI TOOGLE LED
 // register toogle_led handler
 httpd_uri_t uri_toogle_led = {
     .uri = "/toogle_led",
@@ -209,7 +292,15 @@ httpd_uri_t uri_toogle_led = {
     .user_ctx = NULL
 };
 
+//MARK: URI CHANGE COLOR READ ADC
+httpd_uri_t uri_change_color = {
+    .uri = "/change_color",
+    .method = HTTP_POST,
+    .handler = change_color_handler,
+    .user_ctx = NULL
+};
 
+//MARK: URI SET COLOR 
 httpd_uri_t uri_set_rgb = {
     .uri = "/set_rgb",
     .method = HTTP_POST,
@@ -217,7 +308,12 @@ httpd_uri_t uri_set_rgb = {
     .user_ctx = NULL
 };
 
+/* esp_err_t err = httpd_unregister_uri_handler(server, "/old_uri", HTTP_GET);
+if (err != ESP_OK) {
+    ESP_LOGE(TAG, "Error al eliminar el manejador");
+} */
 
+//MARK: UPDATE START WEB SERVER FOR INCLUDE HANDLERS
 // Actualizar la función de inicio del servidor web para incluir estos manejadores
 void start_webserver(void) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
@@ -228,9 +324,9 @@ void start_webserver(void) {
         //httpd_register_uri_handler(server, &uri_led_off);
         httpd_register_uri_handler(server, &uri_get_adc);
         httpd_register_uri_handler(server, &uri_get_tem_adc);
-        httpd_register_uri_handler(server, &uri_get_tem_one_read);
         httpd_register_uri_handler(server, &uri_toogle_led);
         httpd_register_uri_handler(server, &uri_set_rgb);
+        httpd_register_uri_handler(server, &uri_change_color);
 
         // Registrar los nuevos manejadores
         httpd_uri_t uri_index = {
@@ -266,4 +362,5 @@ void start_webserver(void) {
 
 void comandos_init_server(void) {
     read_pot  =  xQueueCreate(5, sizeof(float));
+    change_current_color = xQueueCreate(5, sizeof(float));
 }

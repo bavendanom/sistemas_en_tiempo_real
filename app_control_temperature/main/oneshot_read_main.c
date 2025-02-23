@@ -111,21 +111,21 @@ led_RGB rgb_pot = {
             .timmer      = LEDC_TIMER_0,
             .channel     = LEDC_CHANNEL_3,
             .duty        = LEDC_DUTY_INITAL,
-            .flag_output_invert = 1
+            .flag_output_invert = 0
         },
         .led_green = {
             .gpio_num    = LEDC_OUTPUT_IO_GREEN_POT,
             .timmer      = LEDC_TIMER_0,
             .channel     = LEDC_CHANNEL_4,
             .duty        = LEDC_DUTY_INITAL,
-            .flag_output_invert = 1
+            .flag_output_invert = 0
         },
         .led_blue = {
             .gpio_num    = LEDC_OUTPUT_IO_BLUE_POT,
             .timmer      = LEDC_TIMER_0,
             .channel     = LEDC_CHANNEL_5,
             .duty        = LEDC_DUTY_INITAL,
-            .flag_output_invert = 1
+            .flag_output_invert = 0
         }
 };
 
@@ -190,19 +190,42 @@ void NTC_task(void *pvParameter){
         //xQueueReset(temp_queue);  
         xQueueSend(temp_queue, &temp_Celsius , portMAX_DELAY);
 
-        ;
         if (xQueueReceive(min_red_queue , &MIN_RED, pdMS_TO_TICKS(100)) == pdTRUE) {
             char mensaje[50];
-            snprintf(mensaje, sizeof(mensaje), "MIN_RED recivido: %.2f°C\n", MIN_RED);
-            sendData("CMD_HANDLER", mensaje);
-        } else {
-            ESP_LOGW("CMD_HANDLER", "No se pudo recibir MIN_RED");
+            snprintf(mensaje, sizeof(mensaje), "MIN_RED RECEIVED: %.2f°C\n", MIN_RED);
+            sendData("NTC TASK", mensaje);
         }
-        xQueueReceive(max_red_queue , &MAX_RED, pdMS_TO_TICKS(100));
-        xQueueReceive(min_blue_queue , &MIN_BLUE, pdMS_TO_TICKS(100));
-        xQueueReceive(max_blue_queue , &MAX_BLUE, pdMS_TO_TICKS(100));
-        xQueueReceive(min_green_queue , &MIN_GREEN, pdMS_TO_TICKS(100));
-        xQueueReceive(max_green_queue , &MAX_GREEN, pdMS_TO_TICKS(100));
+
+        if (xQueueReceive(max_red_queue , &MAX_RED, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "MAX_RED RECEIVED: %.2f°C\n", MAX_RED);
+            sendData("NTC TASK", mensaje);
+        }
+
+        else if (xQueueReceive(min_green_queue , &MIN_GREEN, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "MIN_GREEN RECEIVED: %.2f°C\n", MIN_RED);
+            sendData("NTC TASK", mensaje);
+        }
+
+        else if (xQueueReceive(max_green_queue , &MAX_GREEN, pdMS_TO_TICKS(100)== pdTRUE)) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "MIN_BLUE RECEIVED: %.2f°C\n", MAX_RED);
+            sendData("NTC TASK", mensaje);
+        }
+
+        else if (xQueueReceive(min_blue_queue , &MIN_BLUE, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "MIN_BLUE RECEIVED: %.2f°C\n", MIN_RED);
+            sendData("NTC TASK", mensaje);
+        }
+
+        else if (xQueueReceive(max_blue_queue , &MAX_BLUE, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "MIN_GREEN RECEIVED: %.2f°C\n", MAX_RED);
+            sendData("NTC TASK", mensaje);
+        }
+        
 
        // **Acumular los colores antes de actualizar el LED**
         int red_value = 0, green_value = 0, blue_value = 0;
@@ -268,6 +291,7 @@ static void config_button(){
 static void button_task(){
     rgb_init(rgb_pot);
     config_adc_unit(&adc1_config_ch4, ADC_UNIT_1);
+
     
     while (1)
     {
@@ -277,6 +301,17 @@ static void button_task(){
         xQueueReset(read_pot);  
         xQueueSend(read_pot, &duty, portMAX_DELAY);
         // Cambiar el color del LED basado en el valor actual
+        int color_current = 1;
+
+        if (xQueueReceive(change_current_color , &color_current, pdMS_TO_TICKS(100)) == pdTRUE) {
+
+            current_color = (current_color + 1) % 3;
+
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "COLOR CHANGED: %i\n", color_current);
+            sendData("TASK BUTTON: WEB SERVER:", mensaje);
+        }
+
         switch (current_color){
             case RED:
                 rgb_set_color(rgb_pot, duty, 0, 0); // Rojo
