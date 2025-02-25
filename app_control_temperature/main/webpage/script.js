@@ -219,7 +219,7 @@ function turnOffADC() {
     clearInterval(adcInterval);
 }
 
-/* //MARK: RGB CRHOMATIC CIRCLE
+//MARK: RGB CRHOMATIC CIRCLE
 function rgb_crhomatic_circle(rgb) {
 
     // Crear el cuerpo de la solicitud con los datos configurados
@@ -236,7 +236,7 @@ function rgb_crhomatic_circle(rgb) {
     .then(response => response.text())
     .then(data => alert(`Response: ${data}`))
     .catch(error => console.error("Error:", error));
-} */
+} 
 
 
 //MARK: DRAW CRHOMATIC CIRCLE

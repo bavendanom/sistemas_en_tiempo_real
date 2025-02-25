@@ -11,9 +11,9 @@ static uint8_t s_led_state = 0;
 
 QueueHandle_t read_pot;
 QueueHandle_t change_current_color;
-/* QueueHandle_t rgb_crhomatic_circle_red_queue;
+QueueHandle_t rgb_crhomatic_circle_red_queue;
 QueueHandle_t rgb_crhomatic_circle_green_queue;
-QueueHandle_t rgb_crhomatic_circle_blue_queue; */
+QueueHandle_t rgb_crhomatic_circle_blue_queue; 
 
 esp_err_t post_handler(httpd_req_t *req) {
     // Reservar memoria para almacenar los datos recibidos
@@ -292,7 +292,7 @@ esp_err_t connect_wifi_handler(httpd_req_t *req) {
 }
 
 
-/* //MARK: HANDLER RGB CHROMATIC CIRCLE
+//MARK: HANDLER RGB CHROMATIC CIRCLE
 esp_err_t rgb_crhomatic_circle_handler(httpd_req_t *req) {
 
     char content[100];
@@ -309,42 +309,41 @@ esp_err_t rgb_crhomatic_circle_handler(httpd_req_t *req) {
     char mensaje[50];
 
     int red, green, blue; 
+
+   
+
     sscanf(content, "{\"red\":%d,\"green\":%d,\"blue\":%d}", &red, &green, &blue);
     printf("Received RGB data: Red=%d, Green=%d, Blue=%d\n", red, green, blue);
 
     //MARK: RED
     if (xQueueSend(rgb_crhomatic_circle_red_queue, &red, pdMS_TO_TICKS(100)) == pdTRUE) {
-        snprintf(mensaje, sizeof(mensaje), "VALUE_RED  configurado en %d\n", red);
+        snprintf(mensaje, sizeof(mensaje), "VALUE_RED  configurado en %i\n", red);
         sendData("CRHOMATIC CIRCLE", mensaje);
     } else {
         sendData("CRHOMATIC CIRCLE", "Error al enviar VALUE_RED a la cola");
     }
     //MARK: GREEN
     if (xQueueSend(rgb_crhomatic_circle_green_queue, &green, pdMS_TO_TICKS(100)) == pdTRUE) {
-        snprintf(mensaje, sizeof(mensaje), "VALUE_GREEN  configurado en %d\n", green);
+        snprintf(mensaje, sizeof(mensaje), "VALUE_GREEN  configurado en %i\n", green);
         sendData("CRHOMATIC CIRCLE", mensaje);
     } else {
         sendData("CRHOMATIC CIRCLE", "Error al enviar VALUE_GREEN a la cola");
     }
     //MARK: BLUE
     if (xQueueSend(rgb_crhomatic_circle_blue_queue, &blue, pdMS_TO_TICKS(100)) == pdTRUE) {
-        snprintf(mensaje, sizeof(mensaje), "VALUE_BLUE  configurado en %d\n", blue);
+        snprintf(mensaje, sizeof(mensaje), "VALUE_BLUE  configurado en %i\n", blue);
         sendData("CRHOMATIC CIRCLE", mensaje);
     } else {
         sendData("CRHOMATIC CIRCLE", "Error al enviar VALUE_BLUE  a la cola");
     }
 
     // Cerrar la conexión
-    //httpd_resp_send(req, "COLOR CHANGE", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_send(req, "COLOR CHANGE", HTTPD_RESP_USE_STRLEN);
     httpd_resp_set_hdr(req, "Connection", "close");
     
-
-    xQueueReset(rgb_crhomatic_circle_red_queue ); 
-    xQueueReset(rgb_crhomatic_circle_green_queue ); 
-    xQueueReset(rgb_crhomatic_circle_blue_queue ); 
     return ESP_OK;
 
-} */
+} 
 
 
 //MARK: HANDLER FOR FILE(HTML, CSS, JS)
@@ -426,13 +425,13 @@ httpd_uri_t uri_connect_wifi = {
     .user_ctx = NULL
 };
 
-/* //MARK: URI CONNECT WIFI
+//MARK: URI CONNECT WIFI
 httpd_uri_t uri_rgb_crhomatic_circle = {
     .uri = "/rgb_crhomatic_circle",
     .method = HTTP_POST,
     .handler = rgb_crhomatic_circle_handler,
     .user_ctx = NULL
-}; */
+}; 
 
 //MARK: UPDATE START WEB SERVER FOR INCLUDE HANDLERS
 // Actualizar la función de inicio del servidor web para incluir estos manejadores
@@ -449,7 +448,7 @@ void start_webserver(void) {
         httpd_register_uri_handler(server, &uri_set_rgb);
         httpd_register_uri_handler(server, &uri_change_color);
         httpd_register_uri_handler(server, &uri_connect_wifi);
-        //httpd_register_uri_handler(server, &uri_rgb_crhomatic_circle);
+        httpd_register_uri_handler(server, &uri_rgb_crhomatic_circle);
 
         // Registrar los nuevos manejadores
         httpd_uri_t uri_index = {
@@ -486,8 +485,7 @@ void comandos_init_server(void) {
     read_pot  =  xQueueCreate(5, sizeof(float));
     change_current_color = xQueueCreate(5, sizeof(float));
 
-    /* rgb_crhomatic_circle_red_queue = xQueueCreate(5, sizeof(int));
-    rgb_crhomatic_circle_green_queue = xQueueCreate(5, sizeof(int));
-    rgb_crhomatic_circle_blue_queue = xQueueCreate(5, sizeof(int));
-*/
+    rgb_crhomatic_circle_red_queue = xQueueCreate(10, sizeof(int));
+    rgb_crhomatic_circle_green_queue = xQueueCreate(10, sizeof(int));
+    rgb_crhomatic_circle_blue_queue = xQueueCreate(10, sizeof(int));
 } 
