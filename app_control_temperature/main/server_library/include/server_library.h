@@ -19,9 +19,14 @@
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 #define LED_GPIO GPIO_NUM_2  // Define el pin GPIO donde está conectado el LED
 
+
+
 // Definir la cola 
 extern QueueHandle_t read_pot;
 extern QueueHandle_t change_current_color;
+/* extern QueueHandle_t rgb_crhomatic_circle_red_queue;
+extern QueueHandle_t rgb_crhomatic_circle_green_queue;
+extern QueueHandle_t rgb_crhomatic_circle_blue_queue; */
 
 void start_webserver(void);
 void comandos_init_server(void);

@@ -51,6 +51,14 @@
             grid-column: 2 / 4;
             grid-row: 2 / 3;
         }
+        .slider-section{
+            grid-column: 1 / 1;
+            grid-row: 3 / 3;
+            /* padding: 15px;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            background-color: #f1f8ff; */
+        }
         .rgb-control {
             display: flex;
             align-items: center;
@@ -107,7 +115,7 @@
         }
         .settings-section input {
             width: 90%;
-            max-width: 300px;
+            
             padding: 8px;
             border: 1px solid #90caf9;
             border-radius: 5px;
@@ -130,6 +138,17 @@
             border: 2px solid #1976d2;
             border-radius: 5px;
             text-align: center;
+        }
+        .slider-box {
+            border: 2px dashed #000;
+            padding: 20px;
+            border-radius: 30px;
+            min-height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 10px;
+            flex-direction: column;
         }
     </style>
 </head>
@@ -206,6 +225,20 @@
                 <button onclick="changeColor()">CHANGE</button>
             </div>
         </div>
+        <div class="slider-section section">
+            <h2>Chromatic Circle</h2>
+            <div class="slider-box">
+                <canvas id="chromatic-circle" width="300" height="300"></canvas>
+            </div>
+            <div class="rgb-display">
+                <label>Red:</label>
+                <input type="text" id="red-value" readonly>
+                <label>Green:</label>
+                <input type="text" id="green-value" readonly>
+                <label>Blue:</label>
+                <input type="text" id="blue-value" readonly>
+            </div>
+        </div>      
     </div>
     <script src="script.js"></script>
 </body>

@@ -38,6 +38,7 @@
 #define LEDC_OUTPUT_IO_BLUE_POT      (14)   // GPIO para el LED azul
 
 
+
 // Duty inicial para leds
 #define LEDC_DUTY_INITAL          (0)   // Duty inicial (apagado)Set duty to 50%. (2 ** 13) * 50% = 4096
 
@@ -50,6 +51,7 @@ static int adc_raw[2][10];
 static int voltage[2][10];
 
 #define ESP_INTR_FLAG_DEFAULT 0
+
 
 
 // Definición de colores usando enum
@@ -79,6 +81,8 @@ adc_config_t adc2_config_ch0 = {
 };
 
 //MARK: Estructuras LED's RGB 
+
+
 // Estructura para configurar el LED RGB que funciona deacuerdo a la temperatura leida por la NTC
 led_RGB rgb_ntc = {
         .led_red = {
@@ -129,6 +133,7 @@ led_RGB rgb_pot = {
         }
 };
 
+
 //MARK: rgb_init
 // Función para inicializar un LED RGB
 static void rgb_init(led_RGB rgb) {
@@ -153,6 +158,8 @@ void task_process_uart(void *arg) {
         }
     }
 }
+
+
 
 //MARK: NTC_task
 void NTC_task(void *pvParameter){
@@ -227,7 +234,7 @@ void NTC_task(void *pvParameter){
         }
         
 
-       // **Acumular los colores antes de actualizar el LED**
+    // **Acumular los colores antes de actualizar el LED**
         int red_value = 0, green_value = 0, blue_value = 0;
 
         if (temp_Celsius >= MIN_RED && temp_Celsius <= MAX_RED) {
@@ -249,6 +256,36 @@ void NTC_task(void *pvParameter){
     vTaskDelete(NULL);
 }
 
+
+/* //MARK: RGB CRHOMATIC CIRCLE 
+void rgb_crhomatic_circle_task(void *pvParameter){
+    rgb_init(rgb_crhomatic_circle);
+    int RED_CC=0, GREEN_CC=0, BLUE_CC=0;
+    
+    while (1) {
+        if (xQueueReceive(rgb_crhomatic_circle_red_queue , &RED_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "RED_CC RECEIVED: %d\n", RED_CC);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+        if (xQueueReceive(rgb_crhomatic_circle_green_queue , &GREEN_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "GREEN_CC RECEIVED: %d\n", GREEN_CC);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+        else if (xQueueReceive(rgb_crhomatic_circle_blue_queue , &BLUE_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "BLUE_CC RECEIVED: %d\n", BLUE_CC);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+        rgb_set_color(rgb_crhomatic_circle, RED_CC, GREEN_CC, BLUE_CC);
+        vTaskDelay(pdMS_TO_TICKS(1000));
+    }
+    
+}
+ */
 
 // Manejador de interrupciones para GPIO
 static void IRAM_ATTR gpio_isr_handler(void* arg)
@@ -288,7 +325,7 @@ static void config_button(){
 
 
 //MARK: button_task
-static void button_task(){
+static void button_task(void *pvParameter){
     rgb_init(rgb_pot);
     config_adc_unit(&adc1_config_ch4, ADC_UNIT_1);
 
@@ -329,6 +366,7 @@ static void button_task(){
     }      
 }
 
+
 static const char *TAG = "wifi station";
 static void init_server(void){
     // Initialize NVS
@@ -359,11 +397,15 @@ void app_main(void)
     comandos_init_server();
 
     init_server();
-    // Crear la tarea para leer ADC y calculos para la NTC
-    xTaskCreate(NTC_task, "NTC_task", 4096*2, NULL, 4, NULL);
+    
+    xTaskCreate(NTC_task, "NTC_task", 4096*2, NULL, 4, NULL); // Crear la tarea para leer ADC y calculos para la NTC
+
+    //xTaskCreate(rgb_crhomatic_circle_task, "rgb_crhomatic_circle_task", 4096, NULL, 6, NULL);
+    
     xTaskCreate(button_task, "button_task", 4096, NULL, configMAX_PRIORITIES -  3, NULL);
     xTaskCreate(rx_task, "rx_task", 4096, NULL, 5, NULL);
     xTaskCreate(task_process_uart, "task_process_uart", 4096, NULL, 5, NULL);
+    
     
     while(1) {
         vTaskDelay(pdMS_TO_TICKS(1000));

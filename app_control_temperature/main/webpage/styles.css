@@ -30,3 +30,39 @@ button:hover {
 }
 
 
+.new-box {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 2px dashed #551212;
+    padding: 15px;
+    border-radius: 20px;
+    min-height: 300px; /* Ajusta el tamaño según sea necesario */
+    background-color: #f1f8ff;
+}
+
+#chromatic-circle {
+    border-radius: 0px; /* Hace que el canvas sea circular */
+    box-shadow: 0 0px 0px rgba(0, 0, 0, 0.2); /* Sombra para un efecto 3D */
+}
+
+.rgb-display {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.rgb-display label {
+    font-weight: bold;
+}
+
+.rgb-display input {
+    padding: 5px;
+    border: 1px solid #0a20eb;
+    border-radius: 5px;
+    text-align: center;
+    background-color: #f9f9f9;
+    cursor: not-allowed; /* Evita que el usuario edite el valor */
+}
+

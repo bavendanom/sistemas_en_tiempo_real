@@ -1,6 +1,7 @@
 #include "server_library.h"
 #include "command_library.h"
 #include "uart_library.h"
+#include "wifi_library.h"
 
 #define HTTPD_MAX_URI_HANDLERS 16
 
@@ -10,6 +11,9 @@ static uint8_t s_led_state = 0;
 
 QueueHandle_t read_pot;
 QueueHandle_t change_current_color;
+/* QueueHandle_t rgb_crhomatic_circle_red_queue;
+QueueHandle_t rgb_crhomatic_circle_green_queue;
+QueueHandle_t rgb_crhomatic_circle_blue_queue; */
 
 esp_err_t post_handler(httpd_req_t *req) {
     // Reservar memoria para almacenar los datos recibidos
@@ -236,6 +240,112 @@ static esp_err_t change_color_handler(httpd_req_t *req) {
     httpd_resp_set_hdr(req, "Connection", "close");
     return ESP_OK;
 }
+//MARK: HANDLER CONNECT WIFI HANDLER
+esp_err_t connect_wifi_handler(httpd_req_t *req) {
+    char buf[100];
+    int ret, remaining = req->content_len;
+
+    // Leer el cuerpo de la solicitud
+    while (remaining > 0) {
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+
+    buf[req->content_len] = '\0';  // Asegurarse de que la cadena esté terminada en nulo
+
+    // Parsear los datos JSON
+    cJSON *json = cJSON_Parse(buf);
+    if (json == NULL) {
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
+    const cJSON *ssid = cJSON_GetObjectItem(json, "ssid");
+    const cJSON *pass = cJSON_GetObjectItem(json, "pass");
+
+    if (cJSON_IsString(ssid) && (ssid->valuestring != NULL) && 
+        cJSON_IsString(pass) && (pass->valuestring != NULL)) {
+
+        ESP_LOGI(TAG, "Received WiFi settings - SSID: %s, Password: %s", ssid->valuestring, pass->valuestring);
+
+
+        save_wifi_credentials(ssid->valuestring, pass->valuestring);
+	    esp_wifi_disconnect();
+	    connect_to_wifi();
+
+        // Enviar una respuesta exitosa
+        httpd_resp_send(req, "WiFi settings received", HTTPD_RESP_USE_STRLEN);
+
+    } else {
+        httpd_resp_send_500(req);
+        cJSON_Delete(json);
+        return ESP_FAIL;
+    }
+
+    cJSON_Delete(json);
+    return ESP_OK;
+}
+
+
+/* //MARK: HANDLER RGB CHROMATIC CIRCLE
+esp_err_t rgb_crhomatic_circle_handler(httpd_req_t *req) {
+
+    char content[100];
+    int ret = httpd_req_recv(req, content, sizeof(content) - 1);
+    
+    if (ret <= 0) {
+        if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+            httpd_resp_send_408(req);
+        }
+        return ESP_FAIL;
+    }
+
+    content[ret] = '\0';
+    char mensaje[50];
+
+    int red, green, blue; 
+    sscanf(content, "{\"red\":%d,\"green\":%d,\"blue\":%d}", &red, &green, &blue);
+    printf("Received RGB data: Red=%d, Green=%d, Blue=%d\n", red, green, blue);
+
+    //MARK: RED
+    if (xQueueSend(rgb_crhomatic_circle_red_queue, &red, pdMS_TO_TICKS(100)) == pdTRUE) {
+        snprintf(mensaje, sizeof(mensaje), "VALUE_RED  configurado en %d\n", red);
+        sendData("CRHOMATIC CIRCLE", mensaje);
+    } else {
+        sendData("CRHOMATIC CIRCLE", "Error al enviar VALUE_RED a la cola");
+    }
+    //MARK: GREEN
+    if (xQueueSend(rgb_crhomatic_circle_green_queue, &green, pdMS_TO_TICKS(100)) == pdTRUE) {
+        snprintf(mensaje, sizeof(mensaje), "VALUE_GREEN  configurado en %d\n", green);
+        sendData("CRHOMATIC CIRCLE", mensaje);
+    } else {
+        sendData("CRHOMATIC CIRCLE", "Error al enviar VALUE_GREEN a la cola");
+    }
+    //MARK: BLUE
+    if (xQueueSend(rgb_crhomatic_circle_blue_queue, &blue, pdMS_TO_TICKS(100)) == pdTRUE) {
+        snprintf(mensaje, sizeof(mensaje), "VALUE_BLUE  configurado en %d\n", blue);
+        sendData("CRHOMATIC CIRCLE", mensaje);
+    } else {
+        sendData("CRHOMATIC CIRCLE", "Error al enviar VALUE_BLUE  a la cola");
+    }
+
+    // Cerrar la conexión
+    //httpd_resp_send(req, "COLOR CHANGE", HTTPD_RESP_USE_STRLEN);
+    httpd_resp_set_hdr(req, "Connection", "close");
+    
+
+    xQueueReset(rgb_crhomatic_circle_red_queue ); 
+    xQueueReset(rgb_crhomatic_circle_green_queue ); 
+    xQueueReset(rgb_crhomatic_circle_blue_queue ); 
+    return ESP_OK;
+
+} */
+
 
 //MARK: HANDLER FOR FILE(HTML, CSS, JS)
 esp_err_t index_handler(httpd_req_t *req) {
@@ -308,25 +418,38 @@ httpd_uri_t uri_set_rgb = {
     .user_ctx = NULL
 };
 
-/* esp_err_t err = httpd_unregister_uri_handler(server, "/old_uri", HTTP_GET);
-if (err != ESP_OK) {
-    ESP_LOGE(TAG, "Error al eliminar el manejador");
-} */
+//MARK: URI CONNECT WIFI
+httpd_uri_t uri_connect_wifi = {
+    .uri = "/connect",
+    .method = HTTP_POST,
+    .handler = connect_wifi_handler,
+    .user_ctx = NULL
+};
+
+/* //MARK: URI CONNECT WIFI
+httpd_uri_t uri_rgb_crhomatic_circle = {
+    .uri = "/rgb_crhomatic_circle",
+    .method = HTTP_POST,
+    .handler = rgb_crhomatic_circle_handler,
+    .user_ctx = NULL
+}; */
 
 //MARK: UPDATE START WEB SERVER FOR INCLUDE HANDLERS
 // Actualizar la función de inicio del servidor web para incluir estos manejadores
 void start_webserver(void) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
+    config.max_uri_handlers = 10;
+    config.uri_match_fn = httpd_uri_match_wildcard;
 
     if (httpd_start(&server, &config) == ESP_OK) {
-        //httpd_register_uri_handler(server, &uri_led_on);
-        //httpd_register_uri_handler(server, &uri_led_off);
         httpd_register_uri_handler(server, &uri_get_adc);
         httpd_register_uri_handler(server, &uri_get_tem_adc);
         httpd_register_uri_handler(server, &uri_toogle_led);
         httpd_register_uri_handler(server, &uri_set_rgb);
         httpd_register_uri_handler(server, &uri_change_color);
+        httpd_register_uri_handler(server, &uri_connect_wifi);
+        //httpd_register_uri_handler(server, &uri_rgb_crhomatic_circle);
 
         // Registrar los nuevos manejadores
         httpd_uri_t uri_index = {
@@ -358,9 +481,13 @@ void start_webserver(void) {
         ESP_LOGE(TAG, "Failed to start web server");
     }
 }
-
-
+//MARK: INIT QUEUE
 void comandos_init_server(void) {
     read_pot  =  xQueueCreate(5, sizeof(float));
     change_current_color = xQueueCreate(5, sizeof(float));
-}
+
+    /* rgb_crhomatic_circle_red_queue = xQueueCreate(5, sizeof(int));
+    rgb_crhomatic_circle_green_queue = xQueueCreate(5, sizeof(int));
+    rgb_crhomatic_circle_blue_queue = xQueueCreate(5, sizeof(int));
+*/
+} 

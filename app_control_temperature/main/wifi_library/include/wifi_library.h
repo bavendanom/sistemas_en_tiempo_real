@@ -17,8 +17,8 @@
 
 
 
-#define EXAMPLE_STA_SSID       "Kraken_PLUS"//"Marcela 2.4"
-#define EXAMPLE_STA_PASS       "Rhl418yga"//"35490562M"
+//#define EXAMPLE_STA_SSID       "Kraken_PLUS"//"Marcela 2.4"
+//#define EXAMPLE_STA_PASS       "Rhl418yga"//"35490562M"
 #define EXAMPLE_ESP_MAXIMUM_RETRY  5
 //sta
 #define EXAMPLE_AP_SSID        "100 de cilantro"
@@ -42,5 +42,8 @@
 extern esp_netif_t* esp_netif_sta;
 extern esp_netif_t* esp_netif_ap;
 
+void save_wifi_credentials(const char *ssid, const char *password);
+
+void connect_to_wifi(void);
 
 void wifi_app_start(void);
