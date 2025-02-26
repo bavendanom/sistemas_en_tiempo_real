@@ -38,11 +38,6 @@
 #define LEDC_OUTPUT_IO_BLUE_POT      (14)   // GPIO para el LED azul
 
 
-// Definicion de led 3  
-#define LEDC_OUTPUT_IO_RED_CC       (5)   // GPIO para el LED rojo
-#define LEDC_OUTPUT_IO_GREEN_CC     (23)  // GPIO para el LED verde
-#define LEDC_OUTPUT_IO_BLUE_CC      (22)   // GPIO para el LED azul 
-
 
 // Duty inicial para leds
 #define LEDC_DUTY_INITAL          (0)   // Duty inicial (apagado)Set duty to 50%. (2 ** 13) * 50% = 4096
@@ -56,7 +51,7 @@ static int adc_raw[2][10];
 static int voltage[2][10];
 
 #define ESP_INTR_FLAG_DEFAULT 0
-#define NTC_TASK_ 1
+#define NTC_TASK_ 0
 
 
 
@@ -118,21 +113,21 @@ led_RGB rgb_ntc = {
 led_RGB rgb_pot = {
         .led_red = {
             .gpio_num    = LEDC_OUTPUT_IO_RED_POT,
-            .timmer      = LEDC_TIMER_0,
+            .timmer      = LEDC_TIMER_1,
             .channel     = LEDC_CHANNEL_3,
             .duty        = LEDC_DUTY_INITAL,
             .flag_output_invert = 0
         },
         .led_green = {
             .gpio_num    = LEDC_OUTPUT_IO_GREEN_POT,
-            .timmer      = LEDC_TIMER_0,
+            .timmer      = LEDC_TIMER_1,
             .channel     = LEDC_CHANNEL_4,
             .duty        = LEDC_DUTY_INITAL,
             .flag_output_invert = 0
         },
         .led_blue = {
             .gpio_num    = LEDC_OUTPUT_IO_BLUE_POT,
-            .timmer      = LEDC_TIMER_0,
+            .timmer      = LEDC_TIMER_1,
             .channel     = LEDC_CHANNEL_5,
             .duty        = LEDC_DUTY_INITAL,
             .flag_output_invert = 0
@@ -266,9 +261,16 @@ void NTC_task(void *pvParameter){
 //MARK: RGB CRHOMATIC CIRCLE 
 void rgb_crhomatic_circle_task(void *pvParameter){
     rgb_init(rgb_ntc);
-    int RED_CC=0, GREEN_CC=0, BLUE_CC=0;
+    int RED_CC=0, GREEN_CC=0, BLUE_CC=0, brightness=100;
     
     while (1) {
+        if (xQueueReceive(slider_crhomatic_circle_queue, &brightness, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "brightness RECEIVED: %d\n", brightness);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+
         if (xQueueReceive(rgb_crhomatic_circle_red_queue , &RED_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
             char mensaje[50];
             snprintf(mensaje, sizeof(mensaje), "RED_CC RECEIVED: %d\n", RED_CC);
@@ -291,11 +293,23 @@ void rgb_crhomatic_circle_task(void *pvParameter){
         int green_cc = (100*GREEN_CC)/255;
         int blue_cc = (100*BLUE_CC)/255;
 
-        rgb_set_color(rgb_ntc, red_cc, green_cc, blue_cc);
+        // Evitar división por cero
+        if (red_cc == 0) red_cc = 1; // Asignar un valor mínimo para evitar división por cero
+        if (green_cc == 0) green_cc = 1;
+        if (blue_cc == 0) blue_cc = 1;
+
+        int red_brg = (red_cc*brightness)/100;
+        int green_brg = (green_cc*brightness)/100;
+        int blue_brg = (blue_cc*brightness)/100;
+
+        rgb_set_color(rgb_ntc, red_brg, green_brg, blue_brg);
         vTaskDelay(pdMS_TO_TICKS(100));
     }  
 }
 #endif
+
+
+
 // Manejador de interrupciones para GPIO
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
@@ -406,11 +420,13 @@ void app_main(void)
     comandos_init_server();
 
     init_server();
+
     #if NTC_TASK_
     xTaskCreate(NTC_task, "NTC_task", 4096*2, NULL, 4, NULL); // Crear la tarea para leer ADC y calculos para la NTC
     #else
     xTaskCreate(rgb_crhomatic_circle_task, "rgb_crhomatic_circle_task", 4096*2, NULL, 6, NULL);
     #endif
+
     xTaskCreate(button_task, "button_task", 4096, NULL, configMAX_PRIORITIES -  3, NULL);
     xTaskCreate(rx_task, "rx_task", 4096, NULL, 5, NULL);
     xTaskCreate(task_process_uart, "task_process_uart", 4096, NULL, 5, NULL);

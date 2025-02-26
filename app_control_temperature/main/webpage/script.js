@@ -155,7 +155,7 @@ function changeColor() {
         body: JSON.stringify({ action: "change" })
     })
     .then(response => response.text())
-    .then(data => alert(`Response: ${data}`))
+    .then(data => console.log(`Response: ${data}`))
     .catch(error => console.error("Error:", error));
 }
 
@@ -280,6 +280,7 @@ function drawChromaticCircle() {
         const rect = canvas.getBoundingClientRect();
         const x = event.clientX - rect.left-75;
         const y = event.clientY - rect.top-75;
+        
         console.log("Coordenadas del clic (x, y):", x, y); // Depuración de coordenadas
 
     
@@ -302,7 +303,7 @@ function drawChromaticCircle() {
     
             // Convertir HSL a RGB
             const h = angle / 360; // Asegurar que h esté en el rango [0, 1]
-            const rgb = hslToRgb(angle / 360, 1, 0.5);
+            const rgb = hslToRgb(angle / 360, 0.9, 0.6);
 
             console.log("Valores HSL (h, s, l):", h, 1, 0.5); // Depuración de HSL
             console.log("Valores RGB (r, g, b):", rgb); // Depuración de RGB
@@ -352,6 +353,32 @@ function hslToRgb(h, s, l) {
 // Llamar a la función para dibujar el círculo cromático
 drawChromaticCircle();
 
+//MARK: SLIDER
+function slider_cromatic_circle(currentValue) {
+    const numericValue = Number(currentValue);
 
+    // Crear el cuerpo de la solicitud con los datos configurados
+    const data = {
+        value: numericValue,
+    };
+    fetch("/slider_crhomatic_circle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(data => console.log(`Response: ${data}`))
+    .catch(error => console.error("Error:", error));
+} 
+
+// Obtener el slider y el elemento para mostrar el valor
+const brightnessSlider = document.getElementById('brightness-slider');
+const sliderValue = document.getElementById('slider-value');
+// Actualizar el valor cuando el slider cambie
+brightnessSlider.addEventListener("input", function () {
+    const currentValue = this.value; // Obtener el valor actual del slider
+    sliderValue.textContent = currentValue; // Actualizar el texto en la interfaz
+    slider_cromatic_circle(currentValue); // Enviar el valor al servidor
+});
 
 

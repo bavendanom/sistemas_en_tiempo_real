@@ -66,6 +66,8 @@ static esp_err_t set_led_color(led l, uint32_t duty) {
     // Calcular y configurar el duty
     uint32_t scaled_duty = set_duty_porcent(duty);
     ledc_set_duty(LEDC_LOW_SPEED_MODE, l.channel, scaled_duty);
+
+   
     return ledc_update_duty(LEDC_LOW_SPEED_MODE, l.channel);
 }
 

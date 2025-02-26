@@ -374,4 +374,17 @@ void wifi_app_start(void)
     }
     memset(wifi_config_sta, 0, sizeof(wifi_config_t)); // Inicializar a cero
     ESP_ERROR_CHECK(esp_wifi_start());
+    wifi_config_sta = malloc(sizeof(wifi_config_t));
+    memset(wifi_config_sta, 0, sizeof(wifi_config_t));
+
+    // Cargar credenciales guardadas al iniciar
+    if (nvs_credentials_exist()) {
+        char ssid[32] = {0};
+        char password[64] = {0};
+        load_wifi_credentials(ssid, password);
+        strncpy((char*)wifi_config_sta->sta.ssid, ssid, sizeof(wifi_config_sta->sta.ssid));
+        strncpy((char*)wifi_config_sta->sta.password, password, sizeof(wifi_config_sta->sta.password));
+        esp_wifi_set_config(ESP_IF_WIFI_STA, wifi_config_sta);
+        esp_wifi_connect(); // Intentar conexión inmediata al iniciar
+    }
 }

@@ -11,6 +11,7 @@
 #include "lwip/netdb.h"
 #include "esp_http_server.h"
 #include "driver/gpio.h"
+#include "esp_wifi_types.h"
 
 #include "lwip/err.h"
 #include "lwip/sys.h"
@@ -47,3 +48,8 @@ void save_wifi_credentials(const char *ssid, const char *password);
 void connect_to_wifi(void);
 
 void wifi_app_start(void);
+
+/**
+ * Gets the wifi configuration
+ */
+wifi_config_t* wifi_app_get_wifi_config(void);
