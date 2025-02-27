@@ -51,7 +51,7 @@ static int adc_raw[2][10];
 static int voltage[2][10];
 
 #define ESP_INTR_FLAG_DEFAULT 0
-#define NTC_TASK_ 0
+#define NTC_TASK_ 1
 
 
 
@@ -310,7 +310,7 @@ void rgb_crhomatic_circle_task(void *pvParameter){
 
 
 
-// Manejador de interrupciones para GPIO
+/* // Manejador de interrupciones para GPIO
 static void IRAM_ATTR gpio_isr_handler(void* arg)
 {
     // Cambiar el color actual (ciclo entre 0, 1 y 2)
@@ -344,12 +344,12 @@ static void config_button(){
     gpio_isr_handler_add(GPIO_INPUT_IO_1, gpio_isr_handler, (void*) GPIO_INPUT_IO_1);
 
     printf("Minimum free heap size: %"PRIu32" bytes\n", esp_get_minimum_free_heap_size());
-}
+}*/
 
 
 //MARK: button_task
 static void button_task(void *pvParameter){
-    rgb_init(rgb_pot);
+    //rgb_init(rgb_pot);
     config_adc_unit(&adc1_config_ch4, ADC_UNIT_1);
 
     
@@ -372,7 +372,7 @@ static void button_task(void *pvParameter){
             sendData("TASK BUTTON: WEB SERVER:", mensaje);
         }
 
-        switch (current_color){
+        /* switch (current_color){
             case RED:
                 rgb_set_color(rgb_pot, duty, 0, 0); // Rojo
                 break;
@@ -384,9 +384,79 @@ static void button_task(void *pvParameter){
                 break;
             default:
                 break;
-        }
+        } */
         vTaskDelay(100/portTICK_PERIOD_MS);
     }      
+}
+
+
+//MARK: RGB CRHOMATIC CIRCLE 
+void rgb_crhomatic_circle_task(void *pvParameter){
+    rgb_init(rgb_pot);
+    int RED_CC=0, GREEN_CC=0, BLUE_CC=0, brightness=100;
+
+    int time_on = 0, time_off = 0; 
+    
+    while (1) {
+
+        if (xQueueReceive(rgb_time_on_queue, &time_on, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "TIME ON RECEIVED: %i\n", time_on);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+        if (xQueueReceive(rgb_time_off_queue, &time_off, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "TIME OFF RECEIVED: %i\n", time_off);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+        if (xQueueReceive(slider_crhomatic_circle_queue, &brightness, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "brightness RECEIVED: %d\n", brightness);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+
+        if (xQueueReceive(rgb_crhomatic_circle_red_queue , &RED_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "RED_CC RECEIVED: %d\n", RED_CC);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+        if (xQueueReceive(rgb_crhomatic_circle_green_queue , &GREEN_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "GREEN_CC RECEIVED: %d\n", GREEN_CC);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+        if (xQueueReceive(rgb_crhomatic_circle_blue_queue , &BLUE_CC, pdMS_TO_TICKS(100)) == pdTRUE) {
+            char mensaje[50];
+            snprintf(mensaje, sizeof(mensaje), "BLUE_CC RECEIVED: %d\n", BLUE_CC);
+            sendData("CRHOMATIC CIRCLE TASK", mensaje);
+        }
+
+        int time_on_ms = time_on*1000;
+        int time_off_ms = time_off*1000;
+
+        int red_cc = (100*RED_CC)/255;
+        int green_cc = (100*GREEN_CC)/255;
+        int blue_cc = (100*BLUE_CC)/255;
+
+        // Evitar división por cero
+        if (red_cc == 0) red_cc = 1; // Asignar un valor mínimo para evitar división por cero
+        if (green_cc == 0) green_cc = 1;
+        if (blue_cc == 0) blue_cc = 1;
+
+        int red_brg = (red_cc*brightness)/100;
+        int green_brg = (green_cc*brightness)/100;
+        int blue_brg = (blue_cc*brightness)/100;
+
+        rgb_set_color(rgb_pot, red_brg, green_brg, blue_brg);
+        vTaskDelay(pdMS_TO_TICKS(time_on_ms));
+
+        rgb_set_color(rgb_pot, 0,0,0);
+        vTaskDelay(pdMS_TO_TICKS(time_off_ms));
+    }  
 }
 
 
@@ -413,7 +483,7 @@ static void init_server(void){
 //MARK: app_main
 void app_main(void)
 {
-    config_button();
+    //config_button();
     
     uart_init();
     comandos_init();
@@ -426,6 +496,7 @@ void app_main(void)
     #else
     xTaskCreate(rgb_crhomatic_circle_task, "rgb_crhomatic_circle_task", 4096*2, NULL, 6, NULL);
     #endif
+    xTaskCreate(rgb_crhomatic_circle_task, "rgb_crhomatic_circle_task", 4096*2, NULL, 6, NULL);
 
     xTaskCreate(button_task, "button_task", 4096, NULL, configMAX_PRIORITIES -  3, NULL);
     xTaskCreate(rx_task, "rx_task", 4096, NULL, 5, NULL);

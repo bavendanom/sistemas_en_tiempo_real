@@ -28,6 +28,8 @@ extern QueueHandle_t rgb_crhomatic_circle_red_queue;
 extern QueueHandle_t rgb_crhomatic_circle_green_queue;
 extern QueueHandle_t rgb_crhomatic_circle_blue_queue; 
 extern QueueHandle_t slider_crhomatic_circle_queue; 
+extern QueueHandle_t rgb_time_on_queue;
+extern QueueHandle_t rgb_time_off_queue;
 
 void start_webserver(void);
 void comandos_init_server(void);

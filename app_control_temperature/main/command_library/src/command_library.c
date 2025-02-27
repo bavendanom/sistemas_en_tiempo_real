@@ -1,5 +1,6 @@
 #include "command_library.h"
 #include "uart_library.h"
+#include "server_library.h"
 
 
 // Definir la cola para temperatura
@@ -17,6 +18,7 @@ int min_red = 0, max_red = 100;
 int min_green = 0, max_green = 100;
 int min_blue = 0, max_blue = 100;
 int ONOFF = 0;
+int on_time = 0, off_time = 0;
 
 
 void task_get_tem_print(void *arg) {
@@ -163,6 +165,34 @@ void handle_print_tem(char *value) {
 }
 
 
+void handle_on_time(char *value) {
+    on_time = atoi(value);
+    char mensaje[50];
+
+    // Enviar el nuevo valor a la cola
+    if (xQueueSend(rgb_time_on_queue, &on_time, portMAX_DELAY) == pdTRUE) {
+        snprintf(mensaje, sizeof(mensaje), "ON_TIME  configurado en %i segundos\n", on_time);
+        sendData("CMD_HANDLER", mensaje);
+    } else {
+        sendData("CMD_HANDLER", "Error al enviar ON_TIME a la cola");
+    }
+}
+void handle_off_time(char *value) {
+    off_time = atoi(value);
+    char mensaje[50];
+
+    // Enviar el nuevo valor a la cola
+    if (xQueueSend(rgb_time_off_queue, &off_time, portMAX_DELAY) == pdTRUE) {
+        snprintf(mensaje, sizeof(mensaje), "MIN_TIME  configurado en %i segundos\n", off_time);
+        sendData("CMD_HANDLER", mensaje);
+    } else {
+        sendData("CMD_HANDLER", "Error al enviar OFF_TIME a la cola");
+    }
+}
+
+
+
+
 typedef void (*command_handler_t)(char *value);
 //MARK: Tabla de comandos
 // Tabla de comandos
@@ -174,7 +204,9 @@ command_entry_t command_table[] = {
     {"MAX_GREEN", handle_max_green},
     {"MIN_BLUE", handle_min_blue},
     {"MAX_BLUE", handle_max_blue},
-    {"PRINT_TEM", handle_print_tem}
+    {"PRINT_TEM", handle_print_tem},
+    {"ON_TIME", handle_on_time},
+    {"OFF_TIME", handle_off_time}
 };
 
 #define NUM_COMMANDS (sizeof(command_table) / sizeof(command_table[0]))

@@ -15,6 +15,8 @@ QueueHandle_t rgb_crhomatic_circle_red_queue;
 QueueHandle_t rgb_crhomatic_circle_green_queue;
 QueueHandle_t rgb_crhomatic_circle_blue_queue;
 QueueHandle_t slider_crhomatic_circle_queue;
+QueueHandle_t rgb_time_on_queue;
+QueueHandle_t rgb_time_off_queue;
 
 esp_err_t post_handler(httpd_req_t *req) {
     // Reservar memoria para almacenar los datos recibidos
@@ -90,7 +92,7 @@ esp_err_t adc_tem_handler(httpd_req_t *req) {
         snprintf(resp_str, sizeof(resp_str), "{\"Temperature\": %.2f}", temp_Celsius);
         sendData("Server:", resp_str);
         httpd_resp_set_type(req, "application/json");
-        //httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
+        httpd_resp_send(req, resp_str, HTTPD_RESP_USE_STRLEN);
     } else {
         httpd_resp_send_500(req);
     }
@@ -428,6 +430,73 @@ esp_err_t slider_crhomatic_circle_handler(httpd_req_t *req) {
 }
 
 
+//MARK: TIME ON OFF
+esp_err_t set_time_handler(httpd_req_t *req) {
+    char buf[100];
+    int ret, remaining = req->content_len;
+
+
+    if (remaining >= sizeof(buf)) {
+        ESP_LOGE(TAG, "Error: JSON demasiado grande");
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
+
+    while (remaining > 0) {
+        if ((ret = httpd_req_recv(req, buf, MIN(remaining, sizeof(buf)))) <= 0) {
+            if (ret == HTTPD_SOCK_ERR_TIMEOUT) {
+                continue;
+            }
+            return ESP_FAIL;
+        }
+        remaining -= ret;
+    }
+
+    buf[req->content_len] = '\0';  // Asegurarse de que la cadena esté terminada en nulo
+
+    cJSON *json = cJSON_Parse(buf);
+    if (json == NULL) {
+        ESP_LOGE(TAG, "Error al parsear JSON");
+        httpd_resp_send_500(req);
+        return ESP_FAIL;
+    }
+
+    
+    const cJSON *min = cJSON_GetObjectItem(json, "min");
+    const cJSON *max = cJSON_GetObjectItem(json, "max");
+
+    if ( cJSON_IsNumber(min) && cJSON_IsNumber(max)) {
+        ESP_LOGI(TAG, "Received RGB settings Min: %.2f, Max: %.2f", min->valuedouble, max->valuedouble);
+    
+            int min_time = min->valuedouble;
+            int max_time = max->valuedouble;
+            char mensaje[50];
+
+        // Enviar el nuevo valor a la cola de MIN
+        if (xQueueSend(rgb_time_on_queue, &min_time, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MIN_TIME  configurado en %i segundos\n", min_time);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MIN_TIME a la cola");
+        }
+        // Enviar el nuevo valor a la cola de MIN
+        if (xQueueSend(rgb_time_off_queue, &max_time, portMAX_DELAY) == pdTRUE) {
+            snprintf(mensaje, sizeof(mensaje), "MAX_TIME  configurado en %i segundos\n", max_time);
+            sendData("CMD_HANDLER", mensaje);
+        } else {
+            sendData("CMD_HANDLER", "Error al enviar MIN_TIME a la cola");
+        }
+    }
+
+
+    cJSON_Delete(json);
+    httpd_resp_send(req, "RGB settings updated", HTTPD_RESP_USE_STRLEN);
+    return ESP_OK;
+    
+}
+
+
 //MARK: HANDLER FOR FILE(HTML, CSS, JS)
 esp_err_t index_handler(httpd_req_t *req) {
     extern const unsigned char index_html_start[] asm("_binary_index_html_start");
@@ -523,6 +592,15 @@ httpd_uri_t uri_slider_crhomatic_circle = {
     .user_ctx = NULL
 }; 
 
+//MARK: URI SET COLOR 
+httpd_uri_t uri_time_rgb = {
+    .uri = "/set_time",
+    .method = HTTP_POST,
+    .handler = set_time_handler,
+    .user_ctx = NULL
+};
+
+
 
 
 //MARK: UPDATE START WEB SERVER FOR INCLUDE HANDLERS
@@ -530,7 +608,7 @@ httpd_uri_t uri_slider_crhomatic_circle = {
 void start_webserver(void) {
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();
     httpd_handle_t server = NULL;
-    config.max_uri_handlers = 12;
+    config.max_uri_handlers = 15;
     config.uri_match_fn = httpd_uri_match_wildcard;
 
     if (httpd_start(&server, &config) == ESP_OK) {
@@ -542,6 +620,7 @@ void start_webserver(void) {
         httpd_register_uri_handler(server, &uri_connect_wifi);
         httpd_register_uri_handler(server, &uri_rgb_crhomatic_circle);
         httpd_register_uri_handler(server, &uri_slider_crhomatic_circle);
+        httpd_register_uri_handler(server, &uri_time_rgb);
 
         // Registrar los nuevos manejadores
         httpd_uri_t uri_index = {
@@ -581,4 +660,6 @@ void comandos_init_server(void) {
     rgb_crhomatic_circle_green_queue  = xQueueCreate(10, sizeof(int));
     rgb_crhomatic_circle_blue_queue   = xQueueCreate(10, sizeof(int));
     slider_crhomatic_circle_queue = xQueueCreate(5, sizeof(float));
+    rgb_time_on_queue    = xQueueCreate(10, sizeof(int));
+    rgb_time_off_queue    = xQueueCreate(10, sizeof(int));
 } 

@@ -133,7 +133,8 @@ function getTemperature() {
     .then(data => {
         document.getElementById("temperature-display").innerText = `Temperature: ${data.Temperature} °C`;  // Usar la clave correcta del JSON
     })
-    .catch(error => console.error("Error:", error));
+    .catch(error => console.error("Error:", error))
+    .then(data => console.log(`Response: ${data}`));
 }
 
 //MARK: TOOGLE LED D2
@@ -143,7 +144,7 @@ function Toogle() {
         headers: { "Content-Type": "application/json" }
     })
     .then(response => response.text())
-    .then(data => alert(data)) // Muestra una alerta con el mensaje de respuesta
+    .then(data => console.log(data)) // Muestra una alerta con el mensaje de respuesta
     .catch(error => console.error("Error:", error));
 }
 
@@ -380,5 +381,33 @@ brightnessSlider.addEventListener("input", function () {
     sliderValue.textContent = currentValue; // Actualizar el texto en la interfaz
     slider_cromatic_circle(currentValue); // Enviar el valor al servidor
 });
+
+//MARK: TIME ON OFF
+function setTime(){
+    let min = document.getElementById('time_on').value;
+    let max = document.getElementById('time_off').value;
+
+    if (min === "" || max === "") {
+        alert("Enter Min and Max values for RED");
+        return;
+    }
+
+    // Crear el cuerpo de la solicitud con los datos configurados
+    const data = {
+        min: parseFloat(min),
+        max: parseFloat(max)
+    };
+
+    // Enviar los datos al servidor mediante una solicitud POST
+    fetch("/set_time", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(data => alert(`Response: ${data}`))
+    .catch(error => console.error("Error:", error));
+}
+
 
 
